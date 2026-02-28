@@ -1335,6 +1335,30 @@ app.get("/api/auth/steam", rateLimit("login", 10), (req, res) => {
   });
 });
 
+// Fetch Steam display name via GetPlayerSummaries only (avoids GetProfileItemsEquipped which can 403)
+function fetchSteamUserSummary(steamId, apiKey) {
+  return new Promise((resolve) => {
+    const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${encodeURIComponent(steamId)}`;
+    https.get(url, (res) => {
+      let data = "";
+      res.on("data", (chunk) => { data += chunk; });
+      res.on("end", () => {
+        try {
+          if (res.statusCode === 200 && data) {
+            const json = JSON.parse(data);
+            const players = json && json.response && json.response.players;
+            if (players && players.length > 0) {
+              const p = players[0];
+              return resolve({ steamid: steamId, name: p.realname || p.personaname, username: p.personaname || "Steam User" });
+            }
+          }
+        } catch (_) {}
+        resolve({ steamid: steamId, name: "Steam User", username: "Steam User" });
+      });
+    }).on("error", () => resolve({ steamid: steamId, name: "Steam User", username: "Steam User" }));
+  });
+}
+
 app.get("/api/auth/steam/authenticate", rateLimit("login", 10), async (req, res) => {
   if (!steamAuth) return res.redirect(302, steamRedirect("/signin.html?error=steam_not_configured"));
   const nextPath = (req.cookies && req.cookies.pny_steam_next) ? req.cookies.pny_steam_next.replace(/[^a-zA-Z0-9_.-]/g, "") || "index.html" : "index.html";
@@ -1345,13 +1369,31 @@ app.get("/api/auth/steam/authenticate", rateLimit("login", 10), async (req, res)
     const fullCallbackUrl = `${req.protocol}://${req.get("host") || "localhost"}${req.originalUrl || req.url}`;
     const origUrl = req.url;
     req.url = fullCallbackUrl;
+    let steamIdFromOpenId;
     let steamUser;
     try {
       steamUser = await steamAuth.authenticate(req);
+      steamIdFromOpenId = String(steamUser.steamid || "").trim();
+    } catch (authErr) {
+      // 403 often from GetProfileItemsEquipped; verify OpenID ourselves and use GetPlayerSummaries only
+      if (!/403|Steam server error/i.test(String(authErr && authErr.message))) throw authErr;
+      req.url = fullCallbackUrl; // restore full URL for OpenID verification
+      const openid = require("openid");
+      const rp = new openid.RelyingParty(fullCallbackUrl, steamBaseUrl, true, true, []);
+      await new Promise((resolve, reject) => {
+        rp.verifyAssertion(req, (err, result) => {
+          if (err) return reject(new Error(err.message || String(err)));
+          if (!result || !result.authenticated) return reject(new Error("Failed to authenticate user."));
+          if (!/^https?:\/\/steamcommunity\.com\/openid\/id\/\d+$/.test(result.claimedIdentifier)) return reject(new Error("Claimed identity is not valid."));
+          steamIdFromOpenId = (result.claimedIdentifier || "").replace("https://steamcommunity.com/openid/id/", "").trim();
+          resolve();
+        });
+      });
+      steamUser = await fetchSteamUserSummary(steamIdFromOpenId, process.env.STEAM_API_KEY);
     } finally {
       req.url = origUrl;
     }
-    const steamId = String(steamUser.steamid || "").trim();
+    const steamId = String(steamUser.steamid || steamIdFromOpenId || "").trim();
     const displayName = clampStr(steamUser.name || steamUser.username || "Steam User", 40);
     if (!steamId) {
       clearNextCookie();
