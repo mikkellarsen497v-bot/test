@@ -10,13 +10,14 @@ const { GameDig } = require("gamedig");
 
 // Steam OpenID login (set STEAM_API_KEY and BASE_URL in .env; BASE_URL auto-detected on Render via RENDER_EXTERNAL_URL)
 let steamAuth = null;
+let steamBaseUrl = "";
 if (process.env.STEAM_API_KEY) {
   try {
     const SteamAuth = require("node-steam-openid");
-    const baseUrl = (process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/$/, "");
+    steamBaseUrl = (process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/$/, "");
     steamAuth = new SteamAuth({
-      realm: baseUrl,
-      returnUrl: `${baseUrl}/api/auth/steam/authenticate`,
+      realm: steamBaseUrl,
+      returnUrl: `${steamBaseUrl}/api/auth/steam/authenticate`,
       apiKey: process.env.STEAM_API_KEY,
     });
   } catch (e) {
@@ -1340,7 +1341,18 @@ app.get("/api/auth/steam/authenticate", rateLimit("login", 10), async (req, res)
   const isSecure = req.secure || (req.headers["x-forwarded-proto"] === "https") || process.env.NODE_ENV === "production";
   const clearNextCookie = () => { res.append("Set-Cookie", "pny_steam_next=; Path=/; Max-Age=0; HttpOnly"); };
   try {
-    const steamUser = await steamAuth.authenticate(req);
+    // Use request's full URL as return URL so OpenID verification passes behind proxies (Steam adds query params to callback)
+    const fullReturnUrl = `${req.protocol}://${req.get("host") || "localhost"}${req.originalUrl || req.url}`;
+    const openid = require("openid");
+    const rp = new openid.RelyingParty(fullReturnUrl, steamBaseUrl, true, true, []);
+    const steamUser = await new Promise((resolve, reject) => {
+      rp.verifyAssertion(req, (err, result) => {
+        if (err) return reject(new Error(err.message || String(err)));
+        if (!result || !result.authenticated) return reject(new Error("Failed to authenticate user."));
+        if (!/^https?:\/\/steamcommunity\.com\/openid\/id\/\d+$/.test(result.claimedIdentifier)) return reject(new Error("Claimed identity is not valid."));
+        steamAuth.fetchIdentifier(result.claimedIdentifier).then(resolve).catch(reject);
+      });
+    });
     const steamId = String(steamUser.steamid || "").trim();
     const displayName = clampStr(steamUser.name || steamUser.username || "Steam User", 40);
     if (!steamId) {
