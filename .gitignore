@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Local data (optional: remove if you want to track seed data)
+# data/
+
+# Logs and OS
+*.log
+.DS_Store
+
+# Admin login file (contains default password)
+ADMIN_LOGIN.txt

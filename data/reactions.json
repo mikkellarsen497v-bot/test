@@ -1,0 +1,23 @@
+{
+  "nextId": 6,
+  "reactions": [
+    {
+      "id": 4,
+      "postType": "topic",
+      "postId": 23,
+      "topicId": 23,
+      "emoji": "like",
+      "userId": "USR-9QSJJ9",
+      "createdAt": "2026-02-27T16:52:29.973Z"
+    },
+    {
+      "id": 5,
+      "postType": "topic",
+      "postId": 23,
+      "topicId": 23,
+      "emoji": "heart",
+      "userId": "USR-9QSJJ9",
+      "createdAt": "2026-02-27T16:52:30.478Z"
+    }
+  ]
+}

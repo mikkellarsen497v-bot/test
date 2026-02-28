@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Create Topic</title>
+    <meta name="description" content="Create a new topic on Project New York." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section" data-require-auth="1">
+      <div class="container">
+        <div class="card panel">
+          <h2>Create New Topic</h2>
+          <p class="muted">Pick a section and write your post.</p>
+
+          <form id="topicForm" style="margin-top:12px">
+            <div class="form-grid">
+              <div>
+                <label for="category">Category</label>
+                <select id="category" name="category" required></select>
+              </div>
+              <div>
+                <label for="title">Title</label>
+                <input id="title" name="title" required />
+              </div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div>
+              <label for="tags">Tags <span class="muted">(optional, comma-separated, e.g. OOC, IC, Event)</span></label>
+              <input id="tags" name="tags" type="text" placeholder="e.g. OOC, Event" style="width:100%; max-width:360px" />
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div>
+              <label for="body">Body</label>
+              <textarea id="body" name="body" required placeholder="Write your post here…"></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn primary" type="submit"><strong>Post Topic</strong></button>
+              <a class="btn" href="./forums.html"><strong>Forums</strong></a>
+            </div>
+
+            <p class="note" id="topicStatus" style="margin-top:12px"> </p>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Create topic.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./apply.html">Staff Application</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      const params = new URLSearchParams(location.search);
+      const cat = params.get("cat");
+      const categorySelect = document.getElementById("category");
+
+      fetch("/api/categories/flat", { credentials: "same-origin" })
+        .then((r) => r.json())
+        .then((j) => {
+          if (!j || !j.ok) throw new Error("bad");
+          categorySelect.innerHTML = "";
+          for (const g of j.groups) {
+            const og = document.createElement("optgroup");
+            og.label = g.title;
+            for (const f of g.forums) {
+              const opt = document.createElement("option");
+              opt.value = String(f.id);
+              opt.textContent = f.title;
+              og.appendChild(opt);
+            }
+            if (og.children.length) categorySelect.appendChild(og);
+          }
+          if (cat) categorySelect.value = cat;
+        })
+        .catch(() => {
+          categorySelect.innerHTML = `<option value="21">General Discussion</option>`;
+        });
+
+      document.getElementById("topicForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const status = document.getElementById("topicStatus");
+        status.textContent = "Posting…";
+
+        const tagsInput = document.getElementById("tags").value.trim();
+        const tags = tagsInput ? tagsInput.split(",").map((s) => s.trim()).filter(Boolean) : [];
+        const payload = {
+          category: document.getElementById("category").value,
+          title: document.getElementById("title").value,
+          body: document.getElementById("body").value,
+          tags,
+        };
+
+        try {
+          const res = await fetch("/api/topics", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            credentials: "same-origin",
+          });
+          const json = await res.json().catch(() => null);
+          if (!res.ok || !json || !json.ok) {
+            status.textContent = (json && json.error) || `Post failed (${res.status})`;
+            return;
+          }
+          location.href = `./topic.html?id=${json.topicId}`;
+        } catch {
+          status.textContent = "Network error. Is the site server running?";
+        }
+      });
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Appeals</title>
+    <meta name="description" content="Project New York ban/warning appeals preview form with evidence fields." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section" data-require-auth="1">
+      <div class="container">
+        <div class="card panel">
+          <h2>Ban / Warning Appeals</h2>
+          <p class="muted">
+            Submit an appeal with context and evidence. Appeals without evidence are usually denied.
+          </p>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div class="card panel">
+          <h2>Submit Appeal</h2>
+          <p class="note">You must be signed in to submit. After you submit, you’ll get a reference ID.</p>
+
+          <form data-api="/api/appeal" style="margin-top:12px">
+            <div class="form-grid">
+              <div>
+                <label for="steam">Steam profile URL</label>
+                <input id="steam" name="steam" placeholder="https://steamcommunity.com/id/..." required />
+              </div>
+              <div>
+                <label for="type">Appeal type</label>
+                <select id="type" name="type" required>
+                  <option value="ban">Ban</option>
+                  <option value="warning">Warning</option>
+                  <option value="mute">Mute</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div class="form-grid">
+              <div>
+                <label for="forumId">Appeals section</label>
+                <select id="forumId" name="forumId" required>
+                  <option value="40">Ban Appeals</option>
+                  <option value="41">PK Appeals</option>
+                  <option value="42">Flag Appeals</option>
+                </select>
+              </div>
+              <div>
+                <label for="staff">Staff member (if known)</label>
+                <input id="staff" name="staff" placeholder="ModeratorName" />
+              </div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div class="form-grid">
+              <div>
+                <label for="date">Date of punishment</label>
+                <input id="date" name="date" type="date" required />
+              </div>
+              <div></div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div>
+              <label for="what">What happened?</label>
+              <textarea id="what" name="what" placeholder="Describe the situation clearly. Include map/location, who was involved, and what rules you believe applied." required></textarea>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div>
+              <label for="evidence">Evidence links</label>
+              <textarea id="evidence" name="evidence" placeholder="Paste video links, screenshots, logs, or timestamps. (Example: YouTube link + 02:13 timestamp)" required></textarea>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div>
+              <label for="change">What will you do differently?</label>
+              <textarea id="change" name="change" placeholder="Be honest. Staff look for accountability and specific changes in behavior." required></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn red" type="submit"><strong>Submit</strong></button>
+              <a class="btn" href="./forums.html"><strong>Forums</strong></a>
+            </div>
+            <p class="note" data-form-status style="margin-top:12px"> </p>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Appeals and case reviews.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./index.html">Home</a>
+              <a href="./forums.html">Forums</a>
+              <a href="./apply.html">Applications</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
+

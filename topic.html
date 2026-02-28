@@ -1,0 +1,1084 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Topic</title>
+    <meta name="description" content="Topic view for Project New York." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+                <a data-nav href="./watched.html">Watched</a>
+              </div>
+            </details>
+            <a data-nav href="./rules.html">Rules</a>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="cta-row" style="margin-bottom:14px">
+          <a class="btn" id="backLink" href="./forums.html"><strong>Back</strong></a>
+          <a class="btn primary" href="./create-topic.html"><strong>Create New Topic</strong></a>
+          <button type="button" class="btn" id="watchBtn" style="display:none"><strong>Watch</strong></button>
+          <span id="watchingNote" class="muted" style="display:none; margin-left:8px">You're watching this topic.</span>
+          <a class="btn" id="pinBtn" href="#" style="display:none"><strong>Pin</strong></a>
+          <a class="btn" id="lockBtn" href="#" style="display:none"><strong>Lock</strong></a>
+          <a class="btn" id="moveBtn" href="#" style="display:none"><strong>Move</strong></a>
+          <a class="btn red" id="delBtn" href="#" style="display:none"><strong>Delete</strong></a>
+        </div>
+
+        <div class="thread">
+          <div class="post" id="mainPost">
+            <div class="post-left">
+              <div class="post-user">
+                <div class="avatar" id="authorAvatar" style="width:86px; height:86px; border-radius:18px; font-size:22px">?</div>
+                <div class="name" id="authorName">Loading…</div>
+                <div class="rank-badge" id="rankBadge" style="display:none"></div>
+              </div>
+              <div class="post-stats">
+                <div class="k"><span>Posts</span><strong id="statPosts">—</strong></div>
+                <div class="k"><span>Joined</span><strong id="statJoined">—</strong></div>
+              </div>
+            </div>
+            <div class="post-right">
+              <div class="post-top">
+                <div id="topicMeta"> </div>
+                <div id="topicTags" class="topic-tags" style="margin-top:6px; display:flex; flex-wrap:wrap; gap:6px"></div>
+                <div id="topicActions" class="muted"></div>
+              </div>
+              <div class="post-title" id="topicTitle">Loading…</div>
+              <div id="appealOutcome" class="appeal-outcome" style="display:none" role="status"></div>
+              <div class="post-body" id="body"></div>
+              <div class="post-actions">
+                <div id="topicReactions" class="reactions-bar" data-post-type="topic" data-post-id="" aria-label="Reactions"></div>
+                <button type="button" class="link-btn report-post-btn" data-post-type="topic" data-post-id="" id="topicReportBtn" style="display:none">Report</button>
+                <button type="button" class="link-btn" id="topicEditBtn" style="display:none">Edit</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card panel">
+            <div class="cta-row" style="flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:10px">
+              <h2 style="margin:0">Replies</h2>
+              <span id="repliesSortLabel" class="muted">Sort:</span>
+              <select id="repliesSort" style="min-width:120px">
+                <option value="oldest">Oldest first</option>
+                <option value="newest">Newest first</option>
+              </select>
+              <span id="repliesCount" class="muted"></span>
+              <button type="button" class="btn small" id="quoteSelectedBtn" style="display:none"><strong>Quote selected</strong></button>
+            </div>
+            <div id="replies" class="muted"></div>
+            <div id="loadMoreWrap" style="margin-top:10px; display:none">
+              <button type="button" class="btn" id="loadMoreReplies"><strong>Load more</strong></button>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <form id="replyForm" data-require-auth="1">
+              <input type="hidden" id="replyParentId" name="parentReplyId" value="" />
+              <label for="replyBody">Write a reply</label>
+              <div id="replyToolbar" class="cta-row" style="flex-wrap:wrap; gap:6px; margin-bottom:6px">
+                <button type="button" class="btn small" data-insert="**" data-end="**" title="Bold">B</button>
+                <button type="button" class="btn small" data-insert="*" data-end="*" title="Italic">I</button>
+                <button type="button" class="btn small" data-insert="[spoiler]" data-end="[/spoiler]" title="Spoiler">Spoiler</button>
+                <button type="button" class="btn small" data-insert="`" data-end="`" title="Code">Code</button>
+                <button type="button" class="btn small" data-insert="[" data-end="](url)" title="Link">Link</button>
+              </div>
+              <textarea id="replyBody" name="body" placeholder="Reply… (you can use **bold**, *italic*, [spoiler]...[/spoiler], @username)" required maxlength="8000"></textarea>
+              <div class="cta-row" style="align-items:center; gap:10px; margin-top:6px">
+                <span id="replyCharCount" class="muted">0 / 8000</span>
+                <button type="button" class="btn small" id="replyPreviewBtn"><strong>Preview</strong></button>
+              </div>
+              <div id="replyPreviewBox" class="card panel" style="display:none; margin-top:10px; padding:12px"></div>
+              <div class="form-actions" style="margin-top:10px">
+                <button class="btn primary" type="submit"><strong>Post Reply</strong></button>
+              </div>
+              <p class="note" id="replyStatus" style="margin-top:12px"> </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Topic view.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./rules.html">Rules</a>
+              <a href="./apply.html">Staff Application</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <div id="editOverlay" class="modal-overlay" aria-hidden="true">
+      <div class="modal">
+        <h2 id="editTitle">Edit post</h2>
+        <form id="editForm">
+          <label for="editBody">Content</label>
+          <textarea id="editBody" name="body" rows="12" required></textarea>
+          <p class="note" id="editStatus" style="margin-top:8px"></p>
+          <div class="modal-footer" style="margin-top:12px">
+            <button type="button" class="btn" id="editCancel">Cancel</button>
+            <button type="submit" class="btn primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="historyOverlay" class="modal-overlay" aria-hidden="true">
+      <div class="modal">
+        <h2>Edit history</h2>
+        <p class="muted" id="historyHint">Previous versions of this post.</p>
+        <div id="historyList" style="max-height:320px; overflow:auto; margin-top:10px"></div>
+        <div class="modal-footer" style="margin-top:12px">
+          <button type="button" class="btn" id="historyClose">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="reportOverlay" class="modal-overlay" aria-hidden="true">
+      <div class="modal">
+        <h2>Report post</h2>
+        <p class="muted" id="reportHint">Explain why you're reporting this post.</p>
+        <form id="reportForm">
+          <input type="hidden" id="report_postType" name="postType" value="" />
+          <input type="hidden" id="report_postId" name="postId" value="" />
+          <input type="hidden" id="report_topicId" name="topicId" value="" />
+          <label for="report_reason">Reason</label>
+          <textarea id="report_reason" name="reason" required placeholder="Reason for report…" rows="4"></textarea>
+          <p class="note" id="reportStatus" style="margin-top:8px"></p>
+          <div class="modal-footer" style="margin-top:12px">
+            <button type="button" class="btn" id="reportCancel">Cancel</button>
+            <button type="submit" class="btn red">Submit report</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="moveOverlay" class="modal-overlay" aria-hidden="true">
+      <div class="modal">
+        <h2>Move / update topic</h2>
+        <p class="muted" id="moveHint">Choose a new forum and/or status for this topic.</p>
+        <form id="moveForm">
+          <div class="form-grid">
+            <div>
+              <label for="move_forum">Move to forum</label>
+              <select id="move_forum" name="forumId">
+                <option value="">Keep current forum</option>
+              </select>
+            </div>
+            <div>
+              <label>Status</label>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; font-size:13px">
+                <label><input type="radio" name="mv_status" value="keep" checked /> keep</label>
+                <label><input type="radio" name="mv_status" value="open" /> open</label>
+                <label><input type="radio" name="mv_status" value="hold" /> on hold</label>
+                <label><input type="radio" name="mv_status" value="accepted" /> accepted</label>
+                <label><input type="radio" name="mv_status" value="denied" /> denied</label>
+              </div>
+            </div>
+          </div>
+          <p class="note" id="moveStatus" style="margin-top:10px"> </p>
+          <div class="modal-footer">
+            <button type="button" class="btn" id="moveCancel"><strong>Cancel</strong></button>
+            <button type="submit" class="btn primary"><strong>Save</strong></button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+      const params = new URLSearchParams(location.search);
+      const id = params.get("id");
+      const pinBtn = document.getElementById("pinBtn");
+      const lockBtn = document.getElementById("lockBtn");
+      const moveBtn = document.getElementById("moveBtn");
+      const delBtn = document.getElementById("delBtn");
+      const repliesEl = document.getElementById("replies");
+      const replyForm = document.getElementById("replyForm");
+      const replyStatus = document.getElementById("replyStatus");
+      const authorAvatar = document.getElementById("authorAvatar");
+      const authorNameEl = document.getElementById("authorName");
+      const rankBadge = document.getElementById("rankBadge");
+      const statPosts = document.getElementById("statPosts");
+      const statJoined = document.getElementById("statJoined");
+      const moveOverlay = document.getElementById("moveOverlay");
+      const moveForm = document.getElementById("moveForm");
+      const moveForumSelect = document.getElementById("move_forum");
+      const moveStatusText = document.getElementById("moveStatus");
+
+      let forumsFlat = null;
+
+      const showMod = (t) => {
+        pinBtn.style.display = "";
+        lockBtn.style.display = "";
+        moveBtn.style.display = "";
+        delBtn.style.display = "";
+        pinBtn.querySelector("strong").textContent = t.pinnedAt ? "Unpin" : "Pin";
+        lockBtn.querySelector("strong").textContent = t.lockedAt ? "Unlock" : "Lock";
+      };
+
+      if (!id) {
+        document.getElementById("topicTitle").textContent = "Missing topic id.";
+      } else {
+        fetch("/api/me")
+          .then((r) => r.json())
+          .then((me) => {
+            const canMod = me && me.ok && me.user && (me.user.role === "admin" || me.user.role === "staff");
+            if (!canMod) return;
+
+            pinBtn.addEventListener("click", async (e) => {
+              e.preventDefault();
+              await fetch(`/api/topics/${encodeURIComponent(id)}/pin`, { method: "PATCH", credentials: "include" });
+              location.reload();
+            });
+            lockBtn.addEventListener("click", async (e) => {
+              e.preventDefault();
+              const curTopic = window.__topic;
+              let body = {};
+              if (!curTopic || !curTopic.lockedAt) {
+                const reason = prompt("Optional lock reason (shown to users):");
+                if (reason !== null) body = { reason: (reason || "").trim() };
+              }
+              await fetch(`/api/topics/${encodeURIComponent(id)}/lock`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: Object.keys(body).length ? JSON.stringify(body) : undefined,
+              });
+              location.reload();
+            });
+            moveBtn.addEventListener("click", async (e) => {
+              e.preventDefault();
+              moveStatusText.textContent = "";
+              var curTopic = window.__topic;
+              var curStatus = (curTopic && (curTopic.status || "open")) || "open";
+              var curForumId = curTopic && curTopic.categoryId != null ? String(curTopic.categoryId) : "";
+              moveForumSelect.value = curForumId || "";
+              document.querySelectorAll('input[name="mv_status"]').forEach(function (el) {
+                el.checked = (curStatus === "open" && el.value === "keep") || (curStatus !== "open" && el.value === curStatus);
+              });
+              if (!document.querySelector('input[name="mv_status"]:checked')) {
+                document.querySelector('input[name="mv_status"][value="keep"]').checked = true;
+              }
+
+              if (!forumsFlat) {
+                try {
+                  const res = await fetch("/api/categories/flat", { credentials: "include" });
+                  const json = await res.json();
+                  if (res.ok && json && json.ok) {
+                    const flat = [];
+                    for (const g of json.groups || []) {
+                      for (const f of g.forums || []) {
+                        flat.push({ id: f.id, title: f.title, groupTitle: g.title });
+                      }
+                    }
+                    forumsFlat = flat;
+                    moveForumSelect.innerHTML = '<option value="">Keep current forum</option>';
+                    for (const f of flat) {
+                      const opt = document.createElement("option");
+                      opt.value = String(f.id);
+                      opt.textContent = `${f.groupTitle} → ${f.title}`;
+                      moveForumSelect.appendChild(opt);
+                    }
+                    moveForumSelect.value = curForumId || "";
+                  }
+                } catch {
+                  // ignore, dropdown will just have "keep"
+                }
+              }
+
+              moveOverlay.classList.add("is-open");
+              moveOverlay.setAttribute("aria-hidden", "false");
+            });
+
+            document.getElementById("moveCancel").addEventListener("click", () => {
+              moveOverlay.classList.remove("is-open");
+              moveOverlay.setAttribute("aria-hidden", "true");
+            });
+
+            moveOverlay.addEventListener("click", (e) => {
+              if (e.target === moveOverlay) {
+                moveOverlay.classList.remove("is-open");
+                moveOverlay.setAttribute("aria-hidden", "true");
+              }
+            });
+            document.addEventListener("keydown", (e) => {
+              if (e.key === "Escape" && moveOverlay.classList.contains("is-open")) {
+                moveOverlay.classList.remove("is-open");
+                moveOverlay.setAttribute("aria-hidden", "true");
+              }
+            });
+
+            moveForm.addEventListener("submit", async (e) => {
+              e.preventDefault();
+              moveStatusText.textContent = "Saving…";
+              const statusChoice = (document.querySelector('input[name="mv_status"]:checked') || {}).value || "keep";
+              const forumVal = moveForumSelect.value;
+
+              try {
+                if (statusChoice && statusChoice !== "keep") {
+                  const res = await fetch(`/api/topics/${encodeURIComponent(id)}/status`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: statusChoice }),
+                    credentials: "include",
+                  });
+                  const json = await res.json().catch(() => null);
+                  if (!res.ok || !json || !json.ok) {
+                    moveStatusText.textContent = (json && json.error) || `Status update failed (${res.status})`;
+                    return;
+                  }
+                }
+
+                if (forumVal) {
+                  const res2 = await fetch(`/api/topics/${encodeURIComponent(id)}/move`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ forumId: Number(forumVal) }),
+                    credentials: "include",
+                  });
+                  const json2 = await res2.json().catch(() => null);
+                  if (!res2.ok || !json2 || !json2.ok) {
+                    moveStatusText.textContent = (json2 && json2.error) || `Move failed (${res2.status})`;
+                    return;
+                  }
+                }
+
+                moveStatusText.textContent = "Saved.";
+                moveOverlay.classList.remove("is-open");
+                moveOverlay.setAttribute("aria-hidden", "true");
+                location.reload();
+              } catch (err) {
+                moveStatusText.textContent = "Something went wrong.";
+              }
+            });
+            delBtn.addEventListener("click", async (e) => {
+              e.preventDefault();
+              if (!confirm("Permanently delete this topic? This cannot be undone.")) return;
+              await fetch(`/api/topics/${encodeURIComponent(id)}`, { method: "DELETE", credentials: "include" });
+              location.href = "./forums.html";
+            });
+          })
+          .catch(() => {});
+
+        const escapeHtml = (s) =>
+          String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+        const renderRichText = (text) => {
+          let safe = escapeHtml(text || "");
+          // [quote author="Name"]...[/quote]
+          safe = safe.replace(/\[quote\s+author="([^"]*)"\]([\s\S]*?)\[\/quote\]/gi, (_, author, inner) =>
+            `<blockquote class="post-quote" cite=""><cite>${escapeHtml(author)}</cite><div>${inner.trim().replace(/\n/g, "<br>")}</div></blockquote>`);
+          // [spoiler]...[/spoiler] (inner already escaped from escapeHtml above; newlines -> br)
+          safe = safe.replace(/\[spoiler\]([\s\S]*?)\[\/spoiler\]/gi, (_, inner) => `<span class="spoiler" tabindex="0" role="button" title="Click to reveal">${inner.trim().replace(/\n/g, "<br>")}</span>`);
+          // @username -> link to profile
+          safe = safe.replace(/@([a-zA-Z0-9_]{3,20})\b/g, (_, uname) => `<a href="./profile.html?username=${encodeURIComponent(uname)}" class="mention">@${escapeHtml(uname)}</a>`);
+          const lines = safe.split("\n");
+          const out = [];
+          for (const line of lines) {
+            if (line.startsWith("## ")) {
+              out.push(`<h3>${line.slice(3)}</h3>`);
+              continue;
+            }
+            out.push(line);
+          }
+          return out
+            .join("\n")
+            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\n/g, "<br>");
+        };
+
+        const initials = (name) => {
+          const parts = String(name || "").trim().split(/\s+/).slice(0, 2);
+          return parts.map((p) => p[0]).join("").toUpperCase().slice(0, 2) || "?";
+        };
+
+        const EMOJI_MAP = { like: "👍", heart: "❤️" };
+        const EMOJI_KEYS = ["like", "heart"];
+
+        const renderReactions = (reactions) => {
+          const topicIdNum = parseInt(window.__topicId || id, 10);
+          const byKey = (postType, postId, currentUserId) => {
+            const list = (reactions || []).filter((r) => r.postType === postType && r.postId === postId);
+            const counts = {};
+            const userReacted = {};
+            EMOJI_KEYS.forEach((k) => { counts[k] = 0; userReacted[k] = false; });
+            list.forEach((r) => {
+              counts[r.emoji] = (counts[r.emoji] || 0) + 1;
+              if (currentUserId && r.userId === currentUserId) userReacted[r.emoji] = true;
+            });
+            return { counts, userReacted };
+          };
+
+          const renderBar = (barEl, postType, postId, currentUserId) => {
+            if (!barEl) return;
+            const postIdNum = typeof postId === "number" ? postId : parseInt(postId, 10);
+            const { counts, userReacted } = byKey(postType, postIdNum, currentUserId);
+            barEl.innerHTML = EMOJI_KEYS.map((emojiKey) => {
+              const n = counts[emojiKey] || 0;
+              const active = userReacted[emojiKey] ? " active" : "";
+              return `<button type="button" class="reaction-btn${active}" data-emoji="${escapeHtml(emojiKey)}" data-post-type="${escapeHtml(postType)}" data-post-id="${postIdNum}" title="${escapeHtml(emojiKey)}">${EMOJI_MAP[emojiKey]} ${n}</button>`;
+            }).join("");
+            barEl.querySelectorAll(".reaction-btn").forEach((btn) => {
+              btn.addEventListener("click", async () => {
+                const res = await fetch("/api/reactions", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  credentials: "include",
+                  body: JSON.stringify({
+                    postType: btn.dataset.postType,
+                    postId: parseInt(btn.dataset.postId, 10),
+                    topicId: topicIdNum,
+                    emoji: btn.dataset.emoji,
+                  }),
+                });
+                const j = await res.json().catch(() => null);
+                if (j && j.ok && j.reactions) renderReactions(j.reactions);
+              });
+            });
+          };
+
+          fetch("/api/me", { credentials: "include" })
+            .then((r) => r.json())
+            .then((me) => {
+              const uid = (me && me.ok && me.user && me.user.id) || null;
+              const topicBar = document.getElementById("topicReactions");
+              if (topicBar) renderBar(topicBar, "topic", topicIdNum, uid);
+              document.querySelectorAll(".reactions-bar[data-post-type='reply']").forEach((bar) => {
+                renderBar(bar, "reply", parseInt(bar.dataset.postId, 10), uid);
+              });
+            })
+            .catch(() => {
+              const topicBar = document.getElementById("topicReactions");
+              if (topicBar) renderBar(topicBar, "topic", topicIdNum, null);
+              document.querySelectorAll(".reactions-bar[data-post-type='reply']").forEach((bar) => {
+                renderBar(bar, "reply", parseInt(bar.dataset.postId, 10), null);
+              });
+            });
+        };
+
+        fetch(`/api/topics/${encodeURIComponent(id)}`)
+          .then((r) => r.json())
+          .then((j) => {
+            if (!j || !j.ok || !j.topic) throw new Error("bad");
+            const t = j.topic;
+            // expose for move workflow
+            window.__topic = t;
+            const titleIcons =
+              `${t.pinnedAt ? `<span class="icons"><img class="icon-lg" alt="Pinned" src="./assets/icons/pin.svg"></span>` : ""}` +
+              `${t.lockedAt ? `<span class="icons"><img class="icon-lg" alt="Locked" src="./assets/icons/lock.svg"></span>` : ""}`;
+            document.getElementById("topicTitle").innerHTML = `${titleIcons}${escapeHtml(t.title)}`;
+
+            const author = (t.author && (t.author.displayName || t.author.username)) || "Unknown";
+            const when = new Date(t.createdAt).toLocaleString();
+            const authorId = t.author && t.author.id ? t.author.id : "";
+            const authorSafe = escapeHtml(author);
+            const forumSafe = escapeHtml(t.categoryTitle || "");
+            const status = (t.status || "open").toLowerCase();
+            const statusBadge = (status === "accepted" || status === "denied")
+              ? ` <span class="appeal-status appeal-status-${escapeHtml(status)}" aria-label="Appeal status">${escapeHtml(status)}</span>`
+              : "";
+            const edited = t.updatedAt
+              ? ` • <span class="muted">Edited ${new Date(t.updatedAt).toLocaleString()}</span> <button type="button" class="link-btn view-history-btn" data-type="topic" data-id="${t.id}">View history</button>`
+              : "";
+            document.getElementById("topicMeta").innerHTML =
+              `Forum: ${forumSafe} • By ` +
+              `<a href="./profile.html?id=${encodeURIComponent(authorId)}">${authorSafe}</a>` +
+              ` • ${when}` + edited + statusBadge;
+
+            const tagsEl = document.getElementById("topicTags");
+            const tagsList = Array.isArray(t.tags) ? t.tags : [];
+            if (tagsEl) {
+              if (tagsList.length) {
+                tagsEl.style.display = "flex";
+                tagsEl.innerHTML = tagsList.map((tag) => `<span class="chip neutral">${escapeHtml(String(tag))}</span>`).join("");
+              } else {
+                tagsEl.style.display = "none";
+                tagsEl.innerHTML = "";
+              }
+            }
+
+            const outcomeEl = document.getElementById("appealOutcome");
+            if (outcomeEl) {
+              if (status === "accepted") {
+                outcomeEl.style.display = "";
+                outcomeEl.className = "appeal-outcome appeal-outcome-accepted";
+                outcomeEl.textContent = "This appeal has been accepted.";
+              } else if (status === "denied") {
+                outcomeEl.style.display = "";
+                outcomeEl.className = "appeal-outcome appeal-outcome-denied";
+                outcomeEl.textContent = "This appeal has been denied.";
+              } else {
+                outcomeEl.style.display = "none";
+              }
+            }
+            document.getElementById("body").innerHTML = renderRichText(t.body);
+            document.getElementById("backLink").href = t.categoryId ? `./topics.html?cat=${encodeURIComponent(t.categoryId)}` : "./topics.html";
+
+            // Left panel
+            authorNameEl.textContent = author;
+            authorAvatar.textContent = initials(author);
+            function setAuthorAvatar(url) {
+              if (url && (url.startsWith("http") || url.startsWith("data:"))) {
+                authorAvatar.style.backgroundImage = `url(${url})`;
+                authorAvatar.style.backgroundSize = "cover";
+                authorAvatar.style.backgroundPosition = "center";
+                authorAvatar.textContent = "";
+              }
+            }
+            setAuthorAvatar(t.author && t.author.avatarUrl);
+            fetch(`/api/users/${encodeURIComponent(authorId)}?_=${Date.now()}`, { cache: "no-store" })
+              .then((r) => r.json())
+              .then((u) => {
+                if (!u || !u.ok) return;
+                const user = u.user;
+                const joined = new Date(user.createdAt).toLocaleDateString();
+                statJoined.textContent = joined;
+                if (user.rank && user.rank.name) {
+                  rankBadge.style.display = "";
+                  const badgeImg = user.rank.badgeUrl
+                    ? `<img alt="" src="${escapeHtml(user.rank.badgeUrl)}">`
+                    : "";
+                  rankBadge.innerHTML = `${badgeImg}<span>${escapeHtml(user.rank.name)}</span>`;
+                }
+                setAuthorAvatar(user.avatarUrl);
+                if (!user.avatarUrl) {
+                  fetch("/api/me", { headers: { Accept: "application/json" } })
+                    .then((r) => r.json())
+                    .then((j) => {
+                      if (j && j.ok && j.user && String(j.user.id) === String(authorId)) {
+                        const local = localStorage.getItem("pny_avatarUrl") || "";
+                        setAuthorAvatar(local);
+                      }
+                    })
+                    .catch(() => {});
+                }
+              })
+              .catch(() => {});
+
+            fetch(`/api/users/${encodeURIComponent(authorId)}/stats`)
+              .then((r) => r.json())
+              .then((s) => {
+                if (!s || !s.ok) return;
+                const total = (s.stats.topicsCount || 0) + (s.stats.repliesCount || 0);
+                statPosts.textContent = String(total);
+              })
+              .catch(() => {});
+
+            if (t.lockedAt) {
+              replyStatus.textContent = "This topic is locked." + (t.lockedReason ? " Reason: " + t.lockedReason : "");
+              document.getElementById("replyBody").disabled = true;
+              replyForm.querySelector("button[type='submit']").disabled = true;
+            }
+
+            fetch("/api/me")
+              .then((r) => r.json())
+              .then((me) => {
+                if (me && me.ok && me.user) {
+                  document.querySelectorAll(".report-post-btn").forEach((btn) => { btn.style.display = ""; });
+                  const isAuthor = t.author && t.author.id === me.user.id;
+                  const canMod = me.user.role === "admin" || me.user.role === "staff";
+                  if ((isAuthor || canMod) && topicEditBtn) topicEditBtn.style.display = "";
+                  document.querySelectorAll(".edit-reply-btn").forEach((btn) => { btn.style.display = ""; });
+                  const watchBtn = document.getElementById("watchBtn");
+                  watchBtn.style.display = "";
+                  fetch(`/api/topics/${encodeURIComponent(id)}/watching`, { credentials: "include" })
+                    .then((wr) => wr.json())
+                    .then((wj) => {
+                      const watching = wj && wj.ok && wj.watching;
+                      watchBtn.querySelector("strong").textContent = watching ? "Unwatch" : "Watch";
+                      watchBtn.dataset.watching = watching ? "1" : "0";
+                      const note = document.getElementById("watchingNote");
+                      if (note) note.style.display = watching ? "" : "none";
+                    })
+                    .catch(() => {});
+                  watchBtn.addEventListener("click", async () => {
+                    const res = await fetch(`/api/topics/${encodeURIComponent(id)}/watch`, { method: "POST", credentials: "include" });
+                    const j = await res.json().catch(() => null);
+                    if (j && j.ok) {
+                      const now = !!j.watching;
+                      watchBtn.querySelector("strong").textContent = now ? "Unwatch" : "Watch";
+                      watchBtn.dataset.watching = now ? "1" : "0";
+                      const note = document.getElementById("watchingNote");
+                      if (note) note.style.display = now ? "" : "none";
+                    }
+                  });
+                }
+              })
+              .catch(() => {});
+
+            fetch("/api/me")
+              .then((r) => r.json())
+              .then((me) => {
+                const canMod = me && me.ok && me.user && (me.user.role === "admin" || me.user.role === "staff");
+                if (canMod) showMod(t);
+              })
+              .catch(() => {});
+
+            // Set topic id for reactions/report early (so reactions work even with 0 replies)
+            window.__topicId = id;
+            document.getElementById("topicReactions").setAttribute("data-post-id", id);
+            const topicReportBtn = document.getElementById("topicReportBtn");
+            if (topicReportBtn) {
+              topicReportBtn.dataset.postId = id;
+              topicReportBtn.dataset.postType = "topic";
+            }
+
+            // Replies: pagination, sort, load more
+            window.__replyMap = {};
+            let repliesPage = 1;
+            let repliesSort = "oldest";
+            let repliesTotal = 0;
+            let repliesHasMore = false;
+            let canModReplies = false;
+
+            function buildReplyRow(rep, pinnedReplyId) {
+              const who = (rep.author && (rep.author.displayName || rep.author.username)) || "Unknown";
+              const when = new Date(rep.createdAt).toLocaleString();
+              const editedAt = rep.updatedAt ? new Date(rep.updatedAt).toLocaleString() : "";
+              const editedStr = rep.updatedAt
+                ? ` <span class="muted">Last edited ${editedAt}</span> <button type="button" class="link-btn view-history-btn" data-type="reply" data-topic-id="${id}" data-reply-id="${rep.id}">View history</button>`
+                : "";
+              const inReplyTo = rep.parentReplyId
+                ? ` <span class="muted">In reply to <a href="#reply-${rep.parentReplyId}">#${rep.parentReplyId}</a></span>`
+                : "";
+              const isPinned = pinnedReplyId != null && rep.id === pinnedReplyId;
+              const pinnedBadge = isPinned ? ' <span class="muted">(Pinned)</span>' : "";
+              const linkToReply = ` <a href="#reply-${rep.id}" class="link-btn" title="Link to this reply">#${rep.id}</a>`;
+              const body = rep.body || "";
+              const COLLAPSE_LEN = 400;
+              const isLong = body.length > COLLAPSE_LEN;
+              const shortBody = isLong ? body.slice(0, COLLAPSE_LEN) : body;
+              const fullBodyHtml = renderRichText(body);
+              const shortBodyHtml = isLong ? renderRichText(shortBody) + ' <span class="reply-collapse-ellipsis">… </span><button type="button" class="link-btn reply-show-more" data-reply-id="' + rep.id + '">Show more</button>' : fullBodyHtml;
+              const bodyHtml = isLong
+                ? '<div class="reply-body-short" data-reply-id="' + rep.id + '">' + shortBodyHtml + '</div><div class="reply-body-full" data-reply-id="' + rep.id + '" style="display:none">' + fullBodyHtml + '</div>'
+                : '<div class="reply-body-full">' + fullBodyHtml + '</div>';
+              window.__replyMap[rep.id] = { body: rep.body || "", author: who };
+              const quoteBtn = '<button type="button" class="link-btn reply-quote-btn" data-reply-id="' + rep.id + '" title="Quote">Quote</button>';
+              const replyToBtn = '<button type="button" class="link-btn reply-to-btn" data-reply-id="' + rep.id + '" title="Reply to this post">Reply to</button>';
+              const pinBtn = canModReplies ? '<button type="button" class="link-btn reply-pin-btn" data-reply-id="' + rep.id + '" title="Pin this reply">' + (isPinned ? 'Unpin' : 'Pin') + '</button>' : '';
+              const checkbox = '<label class="reply-quote-cb"><input type="checkbox" class="reply-quote-cb-input" data-reply-id="' + rep.id + '" aria-label="Quote this reply"> Quote</label>';
+              return '<div class="side-item reply-item" id="reply-' + rep.id + '" style="margin-bottom:10px" data-reply-id="' + rep.id + '">' +
+                '<div class="title">' + linkToReply + ' <strong>' + escapeHtml(who) + '</strong>' + pinnedBadge + inReplyTo + '<span class="meta">' + escapeHtml(when) + editedStr + '</span></div>' +
+                '<div class="meta reply-body-wrap" style="white-space:pre-wrap">' + bodyHtml + '</div>' +
+                '<div class="post-actions">' +
+                '<div class="reactions-bar" data-post-type="reply" data-post-id="' + rep.id + '" aria-label="Reactions"></div> ' +
+                quoteBtn + ' ' + replyToBtn + ' ' + checkbox + ' ' + pinBtn + ' ' +
+                '<button type="button" class="link-btn report-post-btn" data-post-type="reply" data-post-id="' + rep.id + '" style="display:none">Report</button> ' +
+                '<button type="button" class="link-btn edit-reply-btn" data-reply-id="' + rep.id + '" style="display:none">Edit</button>' +
+                '</div></div>';
+            }
+
+            function loadRepliesPage(page, append) {
+              const url = `/api/topics/${encodeURIComponent(id)}/replies?page=${page}&limit=20&sort=${repliesSort}`;
+              fetch(url, { credentials: "include" })
+                .then((r) => r.json())
+                .then((rr) => {
+                  if (!rr || !rr.ok) throw new Error("bad");
+                  const list = rr.replies || [];
+                  repliesTotal = rr.totalCount != null ? rr.totalCount : list.length;
+                  repliesHasMore = !!rr.hasMore;
+                  const pinnedReplyId = rr.pinnedReplyId != null ? rr.pinnedReplyId : null;
+                  const html = list.map((rep) => buildReplyRow(rep, pinnedReplyId)).join("");
+                  if (!append) repliesEl.innerHTML = "";
+                  if (list.length === 0 && !append) repliesEl.textContent = "No replies yet.";
+                  else if (html) {
+                    const wrap = document.createElement("div");
+                    wrap.innerHTML = html;
+                    while (wrap.firstChild) repliesEl.appendChild(wrap.firstChild);
+                  }
+                  const countEl = document.getElementById("repliesCount");
+                  if (countEl) countEl.textContent = repliesTotal + " reply(ies)";
+                  const loadMoreWrap = document.getElementById("loadMoreWrap");
+                  if (loadMoreWrap) loadMoreWrap.style.display = repliesHasMore ? "block" : "none";
+                  const quoteSelectedBtn = document.getElementById("quoteSelectedBtn");
+                  if (quoteSelectedBtn) quoteSelectedBtn.style.display = document.querySelector(".reply-quote-cb") ? "" : "none";
+                  fetch(`/api/topics/${encodeURIComponent(id)}/reactions`, { credentials: "include" })
+                    .then((r) => r.json())
+                    .then((j) => { if (j && j.ok && j.reactions) renderReactions(j.reactions); })
+                    .catch(() => {});
+                  wireReplyRowButtons();
+                })
+                .catch(() => {
+                  if (!append) repliesEl.textContent = "Failed to load replies.";
+                });
+            }
+
+            function wireReplyRowButtons() {
+              repliesEl.querySelectorAll(".reply-show-more").forEach((btn) => {
+                btn.onclick = () => {
+                  const item = btn.closest(".reply-item");
+                  if (!item) return;
+                  const short = item.querySelector(".reply-body-short");
+                  const full = item.querySelector(".reply-body-full");
+                  if (short) short.style.display = "none";
+                  if (full) full.style.display = "";
+                };
+              });
+              repliesEl.querySelectorAll(".reply-quote-btn").forEach((btn) => {
+                btn.onclick = () => {
+                  const rid = Number(btn.dataset.replyId);
+                  const r = window.__replyMap[rid];
+                  if (!r) return;
+                  const insert = "\n[quote author=\"" + (r.author || "").replace(/"/g, "&quot;") + "\"]\n" + (r.body || "").slice(0, 2000) + "\n[/quote]\n\n";
+                  const ta = document.getElementById("replyBody");
+                  if (ta) { ta.value = ta.value + insert; ta.dispatchEvent(new Event("input")); }
+                };
+              });
+              repliesEl.querySelectorAll(".reply-to-btn").forEach((btn) => {
+                btn.onclick = () => {
+                  const el = document.getElementById("replyParentId");
+                  if (el) el.value = btn.dataset.replyId || "";
+                  const ta = document.getElementById("replyBody");
+                  if (ta) { ta.focus(); replyForm.scrollIntoView({ behavior: "smooth" }); }
+                };
+              });
+              repliesEl.querySelectorAll(".reply-pin-btn").forEach((btn) => {
+                btn.onclick = async () => {
+                  const isUnpin = btn.textContent.trim() === "Unpin";
+                  const replyId = isUnpin ? null : Number(btn.dataset.replyId);
+                  const res = await fetch(`/api/topics/${encodeURIComponent(id)}/pin-reply`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ replyId }),
+                  });
+                  const j = await res.json().catch(() => null);
+                  if (j && j.ok) loadRepliesPage(1, false);
+                };
+              });
+            }
+
+            document.getElementById("repliesSort").addEventListener("change", () => {
+              repliesSort = document.getElementById("repliesSort").value;
+              repliesPage = 1;
+              loadRepliesPage(1, false);
+            });
+            document.getElementById("loadMoreReplies").addEventListener("click", () => {
+              repliesPage += 1;
+              loadRepliesPage(repliesPage, true);
+            });
+
+            fetch("/api/me", { credentials: "include" })
+              .then((r) => r.json())
+              .then((me) => {
+                canModReplies = me && me.ok && me.user && (me.user.role === "admin" || me.user.role === "staff");
+                loadRepliesPage(1, false);
+              })
+              .catch(() => { loadRepliesPage(1, false); });
+          })
+          .catch(() => {
+            document.getElementById("topicTitle").textContent = "Topic not found.";
+          });
+
+        const replyBodyEl = document.getElementById("replyBody");
+        const DRAFT_KEY = "pny_reply_" + id;
+        if (replyBodyEl) {
+          try {
+            const draft = localStorage.getItem(DRAFT_KEY);
+            if (draft) replyBodyEl.value = draft;
+          } catch (_) {}
+          let draftTimer = null;
+          replyBodyEl.addEventListener("input", () => {
+            const len = (replyBodyEl.value || "").length;
+            const countEl = document.getElementById("replyCharCount");
+            if (countEl) countEl.textContent = len + " / 8000";
+            clearTimeout(draftTimer);
+            draftTimer = setTimeout(() => { try { localStorage.setItem(DRAFT_KEY, replyBodyEl.value); } catch (_) {} }, 500);
+          });
+          replyBodyEl.dispatchEvent(new Event("input"));
+        }
+
+        document.getElementById("replyToolbar").addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-insert]");
+          if (!btn || !replyBodyEl) return;
+          const start = replyBodyEl.selectionStart;
+          const end = replyBodyEl.selectionEnd;
+          const before = replyBodyEl.value.slice(0, start);
+          const sel = replyBodyEl.value.slice(start, end);
+          const after = replyBodyEl.value.slice(end);
+          const insert = btn.dataset.insert || "";
+          const endInsert = btn.dataset.end || "";
+          replyBodyEl.value = before + insert + sel + endInsert + after;
+          replyBodyEl.selectionStart = replyBodyEl.selectionEnd = start + insert.length + sel.length;
+          replyBodyEl.focus();
+        });
+
+        document.getElementById("replyPreviewBtn").addEventListener("click", () => {
+          const box = document.getElementById("replyPreviewBox");
+          const body = (replyBodyEl && replyBodyEl.value) || "";
+          box.innerHTML = body ? renderRichText(body) : "<span class=\"muted\">Nothing to preview.</span>";
+          box.style.display = "block";
+        });
+
+        document.getElementById("quoteSelectedBtn").addEventListener("click", () => {
+          const checked = document.querySelectorAll(".reply-quote-cb-input:checked");
+          let insert = "";
+          checked.forEach((cb) => {
+            const rid = Number(cb.dataset.replyId);
+            const r = window.__replyMap[rid];
+            if (r) insert += "\n[quote author=\"" + (r.author || "").replace(/"/g, "&quot;") + "\"]\n" + (r.body || "").slice(0, 1500) + "\n[/quote]\n\n";
+          });
+          if (replyBodyEl && insert) { replyBodyEl.value = replyBodyEl.value + insert; replyBodyEl.dispatchEvent(new Event("input")); }
+          checked.forEach((cb) => { cb.checked = false; });
+        });
+
+        replyForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          replyStatus.textContent = "Posting…";
+          const body = (replyBodyEl && replyBodyEl.value) || "";
+          const parentReplyId = document.getElementById("replyParentId") ? Number(document.getElementById("replyParentId").value) || null : null;
+          const res = await fetch(`/api/topics/${encodeURIComponent(id)}/replies`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ body, parentReplyId }),
+          });
+          const json = await res.json().catch(() => null);
+          if (!res.ok || !json || !json.ok) {
+            replyStatus.textContent = (json && json.error) || `Reply failed (${res.status})`;
+            return;
+          }
+          try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
+          location.reload();
+        });
+
+        // Spoiler click-to-reveal (works for main post and replies)
+        document.addEventListener("click", (e) => {
+          const spoiler = e.target.closest(".spoiler");
+          if (spoiler && !spoiler.classList.contains("revealed")) spoiler.classList.add("revealed");
+        });
+
+        // Edit history modal
+        const historyOverlay = document.getElementById("historyOverlay");
+        const historyList = document.getElementById("historyList");
+        const historyClose = document.getElementById("historyClose");
+        document.addEventListener("click", (e) => {
+          const btn = e.target.closest(".view-history-btn");
+          if (!btn) return;
+          e.preventDefault();
+          const type = btn.dataset.type;
+          const topicId = type === "topic" ? btn.dataset.id : btn.dataset.topicId;
+          const replyId = btn.dataset.replyId;
+          const url = type === "topic"
+            ? `/api/topics/${topicId}/edit-history`
+            : `/api/topics/${topicId}/replies/${replyId}/edit-history`;
+          historyList.innerHTML = "Loading…";
+          historyOverlay.classList.add("is-open");
+          historyOverlay.setAttribute("aria-hidden", "false");
+          fetch(url, { credentials: "include" })
+            .then((r) => r.json())
+            .then((j) => {
+              if (!j || !j.ok) {
+                historyList.innerHTML = "<p class=\"muted\">" + (j && j.error ? escapeHtml(j.error) : "Failed to load.") + "</p>";
+                return;
+              }
+              const history = j.history || [];
+              if (history.length === 0) {
+                historyList.innerHTML = "<p class=\"muted\">No edit history.</p>";
+                return;
+              }
+              historyList.innerHTML = history
+                .map((h, i) => {
+                  const at = h.at ? new Date(h.at).toLocaleString() : "—";
+                  const body = (h.body || "").slice(0, 400) + ((h.body || "").length > 400 ? "…" : "");
+                  return `<div class="card panel" style="margin-bottom:10px; padding:10px"><div class="muted" style="font-size:12px">${escapeHtml(at)}</div><div style="white-space:pre-wrap; margin-top:6px">${escapeHtml(body)}</div></div>`;
+                })
+                .join("");
+            })
+            .catch(() => { historyList.innerHTML = "<p class=\"muted\">Failed to load.</p>"; });
+        });
+        historyClose.addEventListener("click", () => {
+          historyOverlay.classList.remove("is-open");
+          historyOverlay.setAttribute("aria-hidden", "true");
+        });
+        historyOverlay.addEventListener("click", (ev) => {
+          if (ev.target === historyOverlay) {
+            historyOverlay.classList.remove("is-open");
+            historyOverlay.setAttribute("aria-hidden", "true");
+          }
+        });
+
+        // Report modal
+        const reportOverlay = document.getElementById("reportOverlay");
+        const reportForm = document.getElementById("reportForm");
+        const reportStatus = document.getElementById("reportStatus");
+        const reportCancel = document.getElementById("reportCancel");
+        if (reportOverlay && reportForm) {
+          document.addEventListener("click", (e) => {
+            const btn = e.target.closest(".report-post-btn");
+            if (!btn || btn.style.display === "none") return;
+            e.preventDefault();
+            document.getElementById("report_postType").value = btn.dataset.postType || "";
+            document.getElementById("report_postId").value = btn.dataset.postId || "";
+            document.getElementById("report_topicId").value = id;
+            document.getElementById("report_reason").value = "";
+            reportStatus.textContent = "";
+            reportOverlay.classList.add("is-open");
+            reportOverlay.setAttribute("aria-hidden", "false");
+          });
+          reportCancel.addEventListener("click", () => {
+            reportOverlay.classList.remove("is-open");
+            reportOverlay.setAttribute("aria-hidden", "true");
+          });
+          reportOverlay.addEventListener("click", (ev) => {
+            if (ev.target === reportOverlay) {
+              reportOverlay.classList.remove("is-open");
+              reportOverlay.setAttribute("aria-hidden", "true");
+            }
+          });
+          reportForm.addEventListener("submit", async (ev) => {
+            ev.preventDefault();
+            reportStatus.textContent = "Submitting…";
+            const reportUrl = new URL("/api/report", window.location.origin).href;
+            const res = await fetch(reportUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({
+                postType: document.getElementById("report_postType").value,
+                postId: parseInt(document.getElementById("report_postId").value, 10),
+                topicId: parseInt(id, 10),
+                reason: document.getElementById("report_reason").value.trim(),
+              }),
+            });
+            const j = await res.json().catch(() => null);
+            if (res.ok && j && j.ok) {
+              reportStatus.textContent = "Report submitted. Thank you.";
+              reportOverlay.classList.remove("is-open");
+              reportOverlay.setAttribute("aria-hidden", "true");
+            } else {
+              reportStatus.textContent = (j && j.error) || "Failed to submit report.";
+            }
+          });
+        }
+
+        // Edit modal (topic or reply)
+        const editOverlay = document.getElementById("editOverlay");
+        const editForm = document.getElementById("editForm");
+        const editBody = document.getElementById("editBody");
+        const editStatus = document.getElementById("editStatus");
+        const editCancel = document.getElementById("editCancel");
+        const topicEditBtn = document.getElementById("topicEditBtn");
+        let editState = { type: null, replyId: null };
+
+        if (editOverlay && editForm) {
+          if (topicEditBtn) {
+            topicEditBtn.addEventListener("click", () => {
+              const t = window.__topic;
+              if (!t) return;
+              editState = { type: "topic", replyId: null };
+              document.getElementById("editTitle").textContent = "Edit topic";
+              editBody.value = t.body || "";
+              editStatus.textContent = "";
+              editOverlay.classList.add("is-open");
+              editOverlay.setAttribute("aria-hidden", "false");
+            });
+          }
+          document.addEventListener("click", (e) => {
+            const btn = e.target.closest(".edit-reply-btn");
+            if (!btn) return;
+            e.preventDefault();
+            const replyId = parseInt(btn.dataset.replyId, 10);
+            fetch(`/api/topics/${encodeURIComponent(id)}/replies`, { credentials: "include" })
+              .then((r) => r.json())
+              .then((j) => {
+                if (!j || !j.ok || !j.replies) return;
+                const rep = j.replies.find((r) => r.id === replyId);
+                if (!rep) return;
+                editState = { type: "reply", replyId };
+                document.getElementById("editTitle").textContent = "Edit reply";
+                editBody.value = rep.body || "";
+                editStatus.textContent = "";
+                editOverlay.classList.add("is-open");
+                editOverlay.setAttribute("aria-hidden", "false");
+              });
+          });
+          editCancel.addEventListener("click", () => {
+            editOverlay.classList.remove("is-open");
+            editOverlay.setAttribute("aria-hidden", "true");
+          });
+          editOverlay.addEventListener("click", (ev) => {
+            if (ev.target === editOverlay) {
+              editOverlay.classList.remove("is-open");
+              editOverlay.setAttribute("aria-hidden", "true");
+            }
+          });
+          editForm.addEventListener("submit", async (ev) => {
+            ev.preventDefault();
+            editStatus.textContent = "Saving…";
+            const body = editBody.value.trim();
+            if (!body) { editStatus.textContent = "Content is required."; return; }
+            const url = editState.type === "topic"
+              ? `/api/topics/${encodeURIComponent(id)}`
+              : `/api/topics/${encodeURIComponent(id)}/replies/${encodeURIComponent(editState.replyId)}`;
+            const res = await fetch(url, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ body }),
+            });
+            const j = await res.json().catch(() => null);
+            if (res.ok && j && j.ok) {
+              editOverlay.classList.remove("is-open");
+              editOverlay.setAttribute("aria-hidden", "true");
+              location.reload();
+            } else {
+              editStatus.textContent = (j && j.error) || "Failed to save.";
+            }
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,11 @@
+# Railway — use Dockerfile and add a volume in the dashboard
+# See DEPLOY.md for steps.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "node server.js"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

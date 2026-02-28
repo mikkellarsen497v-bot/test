@@ -1,0 +1,18 @@
+{
+  "resolutions": {
+    "REP-FC3YXK": {
+      "status": "resolved",
+      "resolvedAt": "2026-02-27T15:24:29.200Z",
+      "resolvedBy": "USR-9QSJJ9",
+      "resolvedByName": "Crown",
+      "note": null
+    },
+    "REP-60S4MA": {
+      "status": "dismissed",
+      "resolvedAt": "2026-02-27T16:37:39.791Z",
+      "resolvedBy": "USR-UZ583H",
+      "resolvedByName": "test",
+      "note": null
+    }
+  }
+}

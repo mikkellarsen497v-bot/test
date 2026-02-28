@@ -1,0 +1,154 @@
+{
+  "nextId": 101,
+  "categories": [
+    {
+      "id": 1,
+      "type": "group",
+      "title": "Rules & Information",
+      "description": "Official updates, server information, and rules."
+    },
+    {
+      "id": 10,
+      "type": "forum",
+      "parentId": 1,
+      "title": "Announcements & Server Information",
+      "description": "Latest server announcements and info."
+    },
+    {
+      "id": 11,
+      "type": "forum",
+      "parentId": 1,
+      "title": "Community Rules",
+      "description": "Global rules, server rules, and forum rules. Read before posting/playing."
+    },
+    {
+      "id": 2,
+      "type": "group",
+      "title": "General",
+      "description": "Discussion, guides, and suggestions."
+    },
+    {
+      "id": 20,
+      "type": "forum",
+      "parentId": 2,
+      "title": "Guides & Information",
+      "description": "Guides and information for the server."
+    },
+    {
+      "id": 21,
+      "type": "forum",
+      "parentId": 2,
+      "title": "General Discussion",
+      "description": "Talk about anything related to the community/server."
+    },
+    {
+      "id": 22,
+      "type": "forum",
+      "parentId": 2,
+      "title": "Suggestions",
+      "description": "Ideas to improve the server."
+    },
+    {
+      "id": 3,
+      "type": "group",
+      "title": "Applications",
+      "description": "Apply for roles, trusted status, vendors, and organizations."
+    },
+    {
+      "id": 30,
+      "type": "forum",
+      "parentId": 3,
+      "title": "Staff Applications",
+      "description": "Apply to join the staff team."
+    },
+    {
+      "id": 31,
+      "type": "forum",
+      "parentId": 3,
+      "title": "Trusted Applications",
+      "description": "Apply to be a trusted member."
+    },
+    {
+      "id": 32,
+      "type": "forum",
+      "parentId": 3,
+      "title": "Criminal Organization Applications",
+      "description": "Apply for a criminal organization."
+    },
+    {
+      "id": 33,
+      "type": "forum",
+      "parentId": 3,
+      "title": "Vendor Applications",
+      "description": "Apply to have a vendor/business."
+    },
+    {
+      "id": 4,
+      "type": "group",
+      "title": "Appeals",
+      "description": "Appeal punishments and character actions."
+    },
+    {
+      "id": 40,
+      "type": "forum",
+      "parentId": 4,
+      "title": "Ban Appeals",
+      "description": "Appeal bans or warnings."
+    },
+    {
+      "id": 41,
+      "type": "forum",
+      "parentId": 4,
+      "title": "PK Appeals",
+      "description": "Appeal a character PK decision."
+    },
+    {
+      "id": 42,
+      "type": "forum",
+      "parentId": 4,
+      "title": "Flag Appeals",
+      "description": "Appeal removed flags/permissions."
+    },
+    {
+      "id": 43,
+      "type": "forum",
+      "parentId": 4,
+      "title": "Accepted",
+      "description": "Accepted appeals."
+    },
+    {
+      "id": 44,
+      "type": "forum",
+      "parentId": 4,
+      "title": "Denied",
+      "description": "Denied appeals."
+    },
+    {
+      "id": 5,
+      "type": "group",
+      "title": "Reports",
+      "description": "Report players, staff, or bugs."
+    },
+    {
+      "id": 50,
+      "type": "forum",
+      "parentId": 5,
+      "title": "Staff Reports",
+      "description": "Report staff misconduct."
+    },
+    {
+      "id": 51,
+      "type": "forum",
+      "parentId": 5,
+      "title": "Player Reports",
+      "description": "Report players breaking rules."
+    },
+    {
+      "id": 52,
+      "type": "forum",
+      "parentId": 5,
+      "title": "Bug Reports",
+      "description": "Report bugs and issues."
+    }
+  ]
+}

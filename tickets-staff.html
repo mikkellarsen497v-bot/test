@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tickets — Staff</title>
+    <meta name="description" content="Staff view: in-game tickets by server. Sign in to view." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="card panel staff-bans-header">
+          <div class="staff-bans-title-row">
+            <h2 style="margin:0">Tickets</h2>
+            <div class="staff-bans-controls">
+              <label for="server-select" class="sr-only">Server</label>
+              <select id="server-select" class="server-select" aria-label="Filter by server">
+                <option value="">All Servers</option>
+                <option value="1">Project New York</option>
+              </select>
+            </div>
+          </div>
+          <p class="muted fine" style="margin:8px 0 0 0">In-game tickets. Sign in as staff to view and manage.</p>
+        </div>
+
+        <div id="tickets-gate" class="card panel" style="margin-top:24px; display:none">
+          <div class="staff-bans-login-required">
+            <p class="staff-bans-gate-title">You must be signed in to view this</p>
+            <p class="muted">Sign in with your staff account to view in-game tickets.</p>
+            <div class="cta-row" style="margin-top:16px">
+              <a class="btn primary" href="./signin.html" id="tickets-signin-link"><strong>Login</strong></a>
+            </div>
+          </div>
+        </div>
+
+        <div id="tickets-content" class="card panel" style="margin-top:24px; display:none">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px">
+            <h3 style="margin:0">In-game tickets</h3>
+            <div style="display:flex; align-items:center; gap:12px">
+              <p class="muted fine" style="margin:0">Server time: <span id="tickets-server-time"></span></p>
+              <button type="button" class="btn mini" id="tickets-refresh"><strong>Refresh</strong></button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="bans-table" aria-label="Staff ticket list">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Player</th>
+                  <th>Category</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tickets-tbody">
+                <tr><td colspan="6" class="muted">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="muted fine" style="margin-top:12px" id="tickets-count"></p>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Staff tickets view.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./bans.html">Bans</a>
+              <a href="./appeal.html">Appeals</a>
+              <a href="./staff.html">Staff</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      (function () {
+        var serverSelect = document.getElementById("server-select");
+        var gateEl = document.getElementById("tickets-gate");
+        var contentEl = document.getElementById("tickets-content");
+        var tbody = document.getElementById("tickets-tbody");
+        var countEl = document.getElementById("tickets-count");
+        var signinLink = document.getElementById("tickets-signin-link");
+        var refreshBtn = document.getElementById("tickets-refresh");
+
+        if (signinLink) {
+          var redirect = encodeURIComponent(location.pathname + location.search);
+          signinLink.href = "./signin.html?redirect=" + redirect;
+        }
+
+        function getServerFromUrl() {
+          var params = new URLSearchParams(location.search);
+          return params.get("server") || "";
+        }
+        function setServerInUrl(server) {
+          var url = new URL(location.href);
+          if (server) url.searchParams.set("server", server); else url.searchParams.delete("server");
+          if (url.toString() !== location.href) history.replaceState(null, "", url);
+        }
+        if (serverSelect) {
+          var initial = getServerFromUrl();
+          if (initial) serverSelect.value = initial;
+          serverSelect.addEventListener("change", function () {
+            setServerInUrl(serverSelect.value || null);
+            if (contentEl && contentEl.style.display !== "none") loadTickets();
+          });
+        }
+
+        function steamProfileUrl(steamId) {
+          if (!steamId || typeof steamId !== "string") return "#";
+          var id = String(steamId).replace(/STEAM_0:(\d):(\d+)/, function (_, y, z) {
+            return (BigInt(z) * 2n + BigInt(y) + 76561197960265728n).toString();
+          });
+          return "https://steamcommunity.com/profiles/" + id;
+        }
+        function formatDate(iso) {
+          if (!iso) return "—";
+          try {
+            var d = new Date(iso);
+            return isNaN(d.getTime()) ? iso : d.toLocaleString();
+          } catch (_) { return iso; }
+        }
+        function escapeHtml(s) {
+          return String(s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+          });
+        }
+        function statusClass(s) {
+          if (s === "resolved") return "ticket-status-resolved";
+          if (s === "dismissed") return "ticket-status-dismissed";
+          if (s === "claimed") return "ticket-status-claimed";
+          return "ticket-status-open";
+        }
+
+        function setTicketStatus(ticketId, status, note) {
+          fetch("/api/tickets/" + encodeURIComponent(ticketId) + "/resolve", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({ status: status, note: note || "" })
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (json) {
+              if (json && json.ok) loadTickets();
+            });
+        }
+
+        function renderTickets(data) {
+          if (!tbody) return;
+          if (!data || !data.ok || !Array.isArray(data.tickets)) {
+            tbody.innerHTML = "<tr><td colspan=\"6\" class=\"muted\">Failed to load tickets.</td></tr>";
+            if (countEl) countEl.textContent = "";
+            return;
+          }
+          var tickets = data.tickets;
+          if (tickets.length === 0) {
+            tbody.innerHTML = "<tr><td colspan=\"6\" class=\"muted\">No in-game tickets. Tickets are created from the game server.</td></tr>";
+            if (countEl) countEl.textContent = "0 tickets";
+            return;
+          }
+          tbody.innerHTML = tickets.map(function (t) {
+            var steamUrl = t.steamId ? steamProfileUrl(t.steamId) : "#";
+            var playerCell = t.steamId
+              ? "<a href=\"" + steamUrl + "\" target=\"_blank\" rel=\"noreferrer\">" + escapeHtml(t.playerName || "—") + "</a> <span class=\"fine muted\">(" + escapeHtml(t.steamId) + ")</span>"
+              : escapeHtml(t.playerName || "—");
+            var status = (t.status || "open").toLowerCase();
+            var msg = (t.message || "").slice(0, 120);
+            if ((t.message || "").length > 120) msg += "…";
+            var actions = "";
+            if (status === "open" || status === "claimed") {
+              actions += "<button type=\"button\" class=\"ticket-action-btn\" data-id=\"" + escapeHtml(t.id) + "\" data-status=\"claimed\">Claim</button> ";
+              actions += "<button type=\"button\" class=\"ticket-action-btn resolve\" data-id=\"" + escapeHtml(t.id) + "\" data-status=\"resolved\">Resolve</button> ";
+              actions += "<button type=\"button\" class=\"ticket-action-btn dismiss\" data-id=\"" + escapeHtml(t.id) + "\" data-status=\"dismissed\">Dismiss</button>";
+            } else {
+              actions = "<span class=\"muted fine\">" + (status === "resolved" ? "Resolved" : "Dismissed") + "</span>";
+            }
+            return "<tr>" +
+              "<td>" + formatDate(t.createdAt) + "</td>" +
+              "<td>" + playerCell + "</td>" +
+              "<td><span class=\"chip\">" + escapeHtml(t.category || "general") + "</span></td>" +
+              "<td>" + escapeHtml(msg) + "</td>" +
+              "<td><span class=\"ticket-status " + statusClass(status) + "\">" + escapeHtml(status) + "</span></td>" +
+              "<td>" + actions + "</td>" +
+              "</tr>";
+          }).join("");
+
+          tbody.querySelectorAll(".ticket-action-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var id = this.getAttribute("data-id");
+              var status = this.getAttribute("data-status");
+              if (!id || !status) return;
+              this.disabled = true;
+              setTicketStatus(id, status, "");
+            });
+          });
+
+          if (countEl) countEl.textContent = tickets.length + " ticket(s)";
+        }
+
+        function loadTickets() {
+          if (!tbody) return;
+          tbody.innerHTML = "<tr><td colspan=\"6\" class=\"muted\">Loading…</td></tr>";
+          var url = "/api/tickets";
+          var server = serverSelect ? serverSelect.value : "";
+          if (server) url += "?server=" + encodeURIComponent(server);
+          fetch(url, { credentials: "same-origin" })
+            .then(function (r) { return r.json(); })
+            .then(renderTickets)
+            .catch(function () {
+              tbody.innerHTML = "<tr><td colspan=\"6\" class=\"muted\">Failed to load tickets.</td></tr>";
+            });
+        }
+
+        if (refreshBtn) refreshBtn.addEventListener("click", loadTickets);
+
+        var serverTimeEl = document.getElementById("tickets-server-time");
+        function updateServerTime() {
+          if (serverTimeEl) serverTimeEl.textContent = new Date().toLocaleString();
+        }
+        setInterval(updateServerTime, 1000);
+        updateServerTime();
+
+        fetch("/api/me", { credentials: "same-origin" })
+          .then(function (r) { return r.json(); })
+          .then(function (json) {
+            var user = json && json.ok && json.user ? json.user : null;
+            var role = user && user.role ? user.role : "";
+            var isStaff = role === "staff" || role === "admin";
+
+            if (!user || !isStaff) {
+              if (gateEl) gateEl.style.display = "block";
+              if (contentEl) contentEl.style.display = "none";
+              return;
+            }
+            if (gateEl) gateEl.style.display = "none";
+            if (contentEl) contentEl.style.display = "block";
+            loadTickets();
+          })
+          .catch(function () {
+            if (gateEl) gateEl.style.display = "block";
+            if (contentEl) contentEl.style.display = "none";
+          });
+      })();
+    </script>
+  </body>
+</html>

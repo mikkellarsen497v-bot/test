@@ -1,0 +1,21 @@
+# Render Blueprint — use with Dashboard: New > Blueprint, connect repo
+# Free tier: no persistent disk (data resets on deploy). Use paid + disk for production.
+# See DEPLOY.md for full steps.
+
+services:
+  - type: web
+    name: project-new-york
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # PORT is set by Render automatically
+
+    # Optional: add a disk for persistence (paid plans)
+    # disk:
+    #   name: pny-data
+    #   mountPath: /data
+    #   sizeGB: 1
+    # Then add env: DATA_DIR=/data

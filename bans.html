@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Bans</title>
+    <meta name="description" content="Project New York bans page (preview)." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="card panel">
+          <h2>Bans</h2>
+          <p class="muted">Ban history and appeal links.</p>
+          <div class="cta-row" style="margin-top:10px">
+            <a class="btn red" href="./appeal.html"><strong>Submit Appeal</strong></a>
+            <a class="btn" href="./tickets-staff.html"><strong>Staff tickets</strong></a>
+            <a class="btn" href="./bans-staff.html"><strong>Staff bans</strong></a>
+          </div>
+        </div>
+
+        <div class="card panel" style="margin-top:24px">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px">
+            <h3 style="margin:0">From my server</h3>
+            <p class="muted fine" style="margin:0">Current server time: <span id="server-time"></span></p>
+          </div>
+          <p class="muted fine" style="margin:-8px 0 12px 0">Bans from your database only (this server — Project New York). Not from PRN or any other source.</p>
+          <div class="table-wrap">
+            <table class="bans-table" aria-label="Ban list from my server">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Player</th>
+                  <th>Length</th>
+                  <th>Staff</th>
+                  <th>Reason</th>
+                  <th id="bans-th-actions" style="display:none">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bans-tbody">
+                <tr><td colspan="6" class="muted">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="bans-pagination" id="bans-pagination" style="margin-top:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Bans page preview.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./apply.html">Staff Application</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      (function () {
+        var serverTimeEl = document.getElementById("server-time");
+        function updateServerTime() {
+          if (serverTimeEl) serverTimeEl.textContent = new Date().toLocaleString();
+        }
+        updateServerTime();
+        setInterval(updateServerTime, 1000);
+
+        var tbody = document.getElementById("bans-tbody");
+        var paginationEl = document.getElementById("bans-pagination");
+        var currentPage = 1;
+        var pageSize = 25;
+        var totalBans = 0;
+        var isAdmin = false;
+
+        function steamProfileUrl(steamId) {
+          if (!steamId || typeof steamId !== "string") return "#";
+          var id = steamId.replace(/STEAM_0:(\d):(\d+)/, function (_, y, z) {
+            return (BigInt(z) * 2n + BigInt(y) + 76561197960265728n).toString();
+          });
+          return "https://steamcommunity.com/profiles/" + id;
+        }
+
+        function formatDate(iso) {
+          if (!iso) return "—";
+          try {
+            var d = new Date(iso);
+            return isNaN(d.getTime()) ? iso : d.toLocaleString();
+          } catch (_) { return iso; }
+        }
+
+        function expiresText(ban) {
+          if (ban.unbanned) return "Unbanned";
+          if (!ban.expiresAt) return "Never";
+          var end = new Date(ban.expiresAt).getTime();
+          var now = Date.now();
+          if (end <= now) return "Expired";
+          var mins = Math.floor((end - now) / 60000);
+          if (mins < 60) return "in " + mins + " min";
+          var hours = Math.floor(mins / 60);
+          if (hours < 24) return "in " + hours + " hours";
+          var days = Math.floor(hours / 24);
+          return "in " + days + " days";
+        }
+
+        function renderBans(data) {
+          if (!tbody) return;
+          var colSpan = isAdmin ? 6 : 5;
+          if (!data || !data.ok || !Array.isArray(data.bans)) {
+            tbody.innerHTML = "<tr><td colspan=\"" + colSpan + "\" class=\"muted\">Failed to load bans.</td></tr>";
+            return;
+          }
+          totalBans = data.total || 0;
+          if (data.bans.length === 0) {
+            var hint = "No bans recorded.";
+            if (data.tableMissing) {
+              hint = "The bans table doesn't exist yet. On your game server, set MySQL = true in sam_sql_config.lua (same host/database as this site), then restart the server. SAM will create the tables; after that, bans will appear here.";
+            } else if (data.source === "mysql") {
+              hint = "No bans in database. Make sure your game server uses MySQL (sam_sql_config.lua: MySQL = true) and the same host/database as this site. If you just banned someone in-game, check the Node console for connection errors.";
+            } else if (data.source === "json") {
+              hint = "No bans in local file. Set SAM_MYSQL_HOST, SAM_MYSQL_USER, SAM_MYSQL_PASSWORD, SAM_MYSQL_DATABASE in .env to use your server database.";
+            }
+            tbody.innerHTML = "<tr><td colspan=\"" + colSpan + "\" class=\"muted\">" + hint + "</td></tr>";
+            renderPagination(data);
+            return;
+          }
+          tbody.innerHTML = data.bans.map(function (b) {
+            var steamUrl = steamProfileUrl(b.steamId);
+            var playerCell = "<a href=\"" + steamUrl + "\" target=\"_blank\" rel=\"noreferrer\">" + (b.playerName || "—") + "</a>";
+            if (b.steamId) playerCell += " <span class=\"fine muted\">(" + b.steamId + ")</span>";
+            var length = b.length || "—";
+            if (b.unbanned) length = "<span class=\"muted\">" + length + "</span>";
+            var actionsCell = "";
+            if (isAdmin && b.steamId && data.source === "mysql" && !b.unbanned) {
+              actionsCell = "<button type=\"button\" class=\"bans-remove-btn\" data-steamid=\"" + (b.steamId || "").replace(/"/g, "&quot;") + "\" title=\"Remove from list (unban in database)\">Remove</button>";
+            } else if (isAdmin && b.unbanned) {
+              actionsCell = "<span class=\"muted fine\">Unbanned</span>";
+            } else if (isAdmin) {
+              actionsCell = "—";
+            }
+            var dateStr = formatDate(b.date || (b.unbanned && b.unbannedAt ? b.unbannedAt : null));
+            return "<tr>" +
+              "<td>" + dateStr + "</td>" +
+              "<td>" + playerCell + "</td>" +
+              "<td>" + length + "</td>" +
+              "<td>" + (b.staff || "—") + "</td>" +
+              "<td>" + (b.reason || "—") + "</td>" +
+              (isAdmin ? "<td>" + actionsCell + "</td>" : "") +
+              "</tr>";
+          }).join("");
+          tbody.querySelectorAll(".bans-remove-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var sid = this.getAttribute("data-steamid");
+              if (!sid) return;
+              this.disabled = true;
+              fetch("/api/admin/bans/unban", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({ steamid: sid })
+              }).then(function (r) { return r.json(); }).then(function (json) {
+                if (json && json.ok) loadBans(currentPage);
+                else btn.disabled = false;
+              }).catch(function () { btn.disabled = false; });
+            });
+          });
+          renderPagination(data);
+        }
+
+        function renderPagination(data) {
+          if (!paginationEl) return;
+          var total = data.total || 0;
+          var page = data.page || 1;
+          var size = data.pageSize || pageSize;
+          var totalPages = Math.max(1, Math.ceil(total / size));
+          if (totalPages <= 1 && total <= size) {
+            paginationEl.innerHTML = total > 0 ? "<span class=\"muted fine\">Showing " + total + " ban(s)</span>" : "";
+            return;
+          }
+          var prev = page <= 1 ? "" : "<a href=\"#\" data-page=\"" + (page - 1) + "\">Last Page</a>";
+          var next = page >= totalPages ? "" : "<a href=\"#\" data-page=\"" + (page + 1) + "\">Next Page</a>";
+          paginationEl.innerHTML = "<span class=\"muted fine\">Page " + page + " of " + totalPages + " (" + total + " total)</span><span>" + prev + (prev && next ? " " : "") + next + "</span>";
+          paginationEl.querySelectorAll("a[data-page]").forEach(function (a) {
+            a.addEventListener("click", function (e) { e.preventDefault(); loadBans(parseInt(a.getAttribute("data-page"), 10)); });
+          });
+        }
+
+        function loadBans(page) {
+          if (!tbody) return;
+          currentPage = page || 1;
+          var colSpan = isAdmin ? 6 : 5;
+          tbody.innerHTML = "<tr><td colspan=\"" + colSpan + "\" class=\"muted\">Loading…</td></tr>";
+          fetch("/api/bans?page=" + currentPage + "&limit=" + pageSize + "&status=1")
+            .then(function (r) { return r.json(); })
+            .then(renderBans)
+            .catch(function () {
+              tbody.innerHTML = "<tr><td colspan=\"6\" class=\"muted\">Failed to load bans.</td></tr>";
+            });
+        }
+
+        fetch("/api/me", { credentials: "same-origin" })
+          .then(function (r) { return r.json(); })
+          .then(function (json) {
+            if (json && json.ok && json.user && json.user.role === "admin") {
+              isAdmin = true;
+              var th = document.getElementById("bans-th-actions");
+              if (th) th.style.display = "";
+            }
+            loadBans(1);
+          })
+          .catch(function () { loadBans(1); });
+      })();
+    </script>
+  </body>
+</html>
+

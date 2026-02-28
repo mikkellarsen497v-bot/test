@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Sign In</title>
+    <meta name="description" content="Project New York sign in page (preview)." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="card panel">
+          <h2>Sign In</h2>
+          <p class="muted">Sign in with your Steam account to create topics and submit applications/appeals.</p>
+
+          <p class="note" id="loginStatus" style="margin-top:12px"> </p>
+
+          <div class="form-actions" style="margin-top:16px">
+            <a id="steamLoginBtn" class="btn primary" href="/api/auth/steam"><strong>Sign in with Steam</strong></a>
+            <a class="btn" href="./forums.html"><strong>Forums</strong></a>
+          </div>
+
+          <p class="note" style="margin-top:16px">
+            First time? Click “Sign in with Steam” and an account will be created when you log in.
+          </p>
+
+          <details style="margin-top:20px">
+            <summary class="muted" style="cursor:pointer">Admin / legacy password login</summary>
+            <form id="legacyLoginForm" style="margin-top:12px">
+              <div class="form-grid">
+                <div>
+                  <label for="username">Username</label>
+                  <input id="username" name="username" autocomplete="username" />
+                </div>
+                <div>
+                  <label for="password">Password</label>
+                  <input id="password" name="password" type="password" autocomplete="current-password" />
+                </div>
+              </div>
+              <div class="form-actions" style="margin-top:8px">
+                <button class="btn" type="submit">Sign in with password</button>
+              </div>
+              <p class="note" id="legacyStatus" style="margin-top:8px"> </p>
+            </form>
+          </details>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Sign-in page preview.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./apply.html">Staff Application</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+      const params = new URLSearchParams(location.search);
+      const next = params.get("next") || "index.html";
+      const error = params.get("error");
+
+      const statusEl = document.getElementById("loginStatus");
+      if (error) {
+        const messages = {
+          steam_not_configured: "Steam login is not configured. Set STEAM_API_KEY and BASE_URL in .env.",
+          steam_error: "Could not start Steam login. Try again.",
+          steam_no_id: "Steam did not return an identity. Try again.",
+          steam_failed: "Steam sign-in failed. Try again.",
+          account_disabled: "This account is disabled.",
+        };
+        statusEl.textContent = messages[error] || "Sign-in failed. Try again.";
+      }
+
+      const steamBtn = document.getElementById("steamLoginBtn");
+      steamBtn.href = (window.API_BASE || "") + "/api/auth/steam?next=" + encodeURIComponent(next);
+
+      document.getElementById("legacyLoginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const status = document.getElementById("legacyStatus");
+        status.textContent = "Signing in…";
+        try {
+          const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: document.getElementById("username").value,
+              password: document.getElementById("password").value,
+            }),
+            credentials: "include",
+          });
+          const json = await res.json().catch(() => null);
+          if (!res.ok || !json || !json.ok) {
+            const msg = (json && json.error) || "Sign in failed.";
+            const code = res.status ? ` (${res.status})` : "";
+            status.textContent = msg + code;
+            return;
+          }
+          location.href = "./" + next;
+        } catch (err) {
+          status.textContent = "Network error. Check api-config.js and that the API is running.";
+        }
+      });
+    </script>
+  </body>
+</html>
+

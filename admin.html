@@ -1,0 +1,2228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Admin Panel</title>
+    <meta name="description" content="Admin panel for Project New York." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section" data-require-admin="1">
+      <div class="admin-shell">
+        <aside class="admin-sidebar">
+          <div class="admin-nav-section">
+            <h2>Dashboard</h2>
+            <ul class="admin-nav">
+              <li><a href="#" data-section-link="dashboard" class="active"><span>Overview</span></a></li>
+              <li><a href="#" data-section-link="stats"><span>Stats &amp; analytics</span></a></li>
+              <li><a href="#" data-section-link="audit"><span>Audit log</span></a></li>
+            </ul>
+          </div>
+          <div class="admin-nav-section">
+            <h2>Community</h2>
+            <ul class="admin-nav">
+              <li><a href="#" data-section-link="online"><span>Online Users</span></a></li>
+              <li><a href="#" data-section-link="reports"><span>Reports</span></a></li>
+            </ul>
+          </div>
+          <div class="admin-nav-section">
+            <h2>Forums</h2>
+            <ul class="admin-nav">
+              <li><a href="#" data-section-link="users"><span>Community users</span></a></li>
+              <li><a href="#" data-section-link="categories"><span>Categories</span></a></li>
+              <li><a href="#" data-section-link="threads"><span>Threads</span></a></li>
+              <li><a href="#" data-section-link="ranks"><span>Ranks</span></a></li>
+            </ul>
+          </div>
+          <div class="admin-nav-section">
+            <h2>Moderation</h2>
+            <ul class="admin-nav">
+              <li><a href="#" data-section-link="wordfilter"><span>Word filter</span></a></li>
+            </ul>
+          </div>
+          <div class="admin-nav-section">
+            <h2>Appeals</h2>
+            <ul class="admin-nav">
+              <li><a href="#" data-section-link="appeals"><span>Appeal boards</span></a></li>
+            </ul>
+          </div>
+          <div class="admin-nav-section">
+            <h2>Applications</h2>
+            <ul class="admin-nav">
+              <li><a href="#" data-section-link="applications"><span>Application boards</span></a></li>
+            </ul>
+          </div>
+          <div class="admin-nav-section">
+            <h2>Settings</h2>
+            <ul class="admin-nav">
+              <li><a href="#" data-section-link="announcements"><span>Announcements</span></a></li>
+              <li><a href="#" data-section-link="theme"><span>Theme</span></a></li>
+            </ul>
+          </div>
+        </aside>
+
+        <div class="admin-main">
+          <section class="admin-section" data-admin-section="online">
+            <div class="card panel">
+              <h2>Online Users</h2>
+              <p class="muted">Users with an active session (signed in).</p>
+              <div class="cta-row" style="margin-top:10px">
+                <button type="button" class="btn primary" id="onlineRefreshBtn"><strong>Refresh</strong></button>
+              </div>
+            </div>
+            <div style="height:14px"></div>
+            <div class="card panel" style="padding:0; overflow:hidden">
+              <table class="forum-table" aria-label="Online users">
+                <thead>
+                  <tr>
+                    <th style="width:22%">Username</th>
+                    <th style="width:22%">Display name</th>
+                    <th style="width:18%">Rank</th>
+                    <th style="width:28%">Last active</th>
+                    <th style="width:10%">Profile</th>
+                  </tr>
+                </thead>
+                <tbody id="onlineRows"></tbody>
+              </table>
+            </div>
+            <p class="note" id="onlineStatus" style="margin-top:12px"> </p>
+          </section>
+
+          <section class="admin-section active" data-admin-section="dashboard">
+            <div class="card panel">
+              <h2>Admin Dashboard</h2>
+              <p class="muted">Quick overview and shortcuts to manage your community.</p>
+              <div id="modDashboardCards" class="two-col" style="margin-top:14px; display:none">
+                <div class="card panel" style="background:rgba(16,20,23,.55)">
+                  <h2>Moderation at a glance</h2>
+                  <p class="muted" style="margin-top:6px">Open reports, appeals, and users needing attention.</p>
+                  <div class="cta-row" style="margin-top:10px; flex-wrap:wrap; gap:8px">
+                    <a id="modCardReports" class="btn" href="#" data-section-link="reports"><strong>Open reports: <span id="modCountReports">0</span></strong></a>
+                    <a id="modCardAppeals" class="btn" href="#" data-section-link="appeals"><strong>Open appeals: <span id="modCountAppeals">0</span></strong></a>
+                    <a id="modCardWarnings" class="btn" href="#" data-section-link="users"><strong>Users 3+ warnings: <span id="modCountWarnings">0</span></strong></a>
+                  </div>
+                </div>
+              </div>
+              <div class="admin-quick-actions">
+                <a class="admin-quick-action primary" href="./create-topic.html">
+                  <span class="label">Forums</span>
+                  <span class="title">New thread</span>
+                </a>
+                <a class="admin-quick-action" href="#" data-section-link="users">
+                  <span class="label">Community</span>
+                  <span class="title">Create user</span>
+                </a>
+                <a class="admin-quick-action" href="#" data-section-link="reports">
+                  <span class="label">Moderation</span>
+                  <span class="title">Reports</span>
+                </a>
+                <a class="admin-quick-action" href="#" data-section-link="appeals">
+                  <span class="label">Moderation</span>
+                  <span class="title">Appeals</span>
+                </a>
+                <a class="admin-quick-action" href="./topics.html?cat=30">
+                  <span class="label">Applications</span>
+                  <span class="title">Staff apps</span>
+                </a>
+                <a class="admin-quick-action danger" href="./topics.html?cat=40">
+                  <span class="label">Appeals</span>
+                  <span class="title">Ban appeals</span>
+                </a>
+                <a class="admin-quick-action" href="#" data-section-link="audit">
+                  <span class="label">History</span>
+                  <span class="title">Audit log</span>
+                </a>
+                <a class="admin-quick-action" href="#" data-section-link="stats">
+                  <span class="label">Insights</span>
+                  <span class="title">Stats &amp; analytics</span>
+                </a>
+              </div>
+              <div class="two-col" style="margin-top:20px">
+                <div class="card panel" style="background:rgba(16,20,23,.55)">
+                  <h2>Getting started</h2>
+                  <ul class="list">
+                    <li>Create forum categories and subforums.</li>
+                    <li>Create ranks with permissions (post, moderate, access admin).</li>
+                    <li>Create users and assign them a rank.</li>
+                  </ul>
+                </div>
+                <div class="card panel" style="background:rgba(16,20,23,.55)">
+                  <h2>Site announcement</h2>
+                  <p class="muted" style="margin-top:6px" id="dashboardAnnouncementPreview">No announcement set. Add one in Settings → Announcements.</p>
+                  <a class="btn" href="#" data-section-link="announcements" style="margin-top:10px"><strong>Edit announcement</strong></a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="admin-section" data-admin-section="stats">
+            <div class="card panel">
+              <h2>Stats &amp; analytics</h2>
+              <p class="muted">Community metrics at a glance.</p>
+              <div class="cta-row" style="margin-top:10px">
+                <button type="button" class="btn primary" id="statsRefreshBtn"><strong>Refresh</strong></button>
+              </div>
+            </div>
+            <div style="height:14px"></div>
+            <div class="card panel" id="statsPanel">
+              <p class="muted" id="statsStatus">Loading…</p>
+              <div id="statsGrid" class="stats-grid" style="display:none; margin-top:14px"></div>
+              <div id="statsCharts" style="margin-top:20px; display:none"></div>
+              <div id="statsCategories" style="margin-top:20px; display:none"></div>
+            </div>
+          </section>
+
+          <section class="admin-section" data-admin-section="audit">
+            <div class="card panel">
+              <h2>Audit log</h2>
+              <p class="muted">Recent staff actions (pin, lock, move, delete).</p>
+              <div class="cta-row" style="margin-top:10px; flex-wrap:wrap; gap:10px; align-items:center">
+                <button type="button" class="btn primary" id="auditRefreshBtn"><strong>Refresh</strong></button>
+                <button type="button" class="btn" id="exportAuditCsvBtn"><strong>Export CSV</strong></button>
+                <label>Action <select id="auditFilterAction" style="min-width:120px">
+                  <option value="">All</option>
+                  <option value="lock">lock</option>
+                  <option value="unlock">unlock</option>
+                  <option value="pin">pin</option>
+                  <option value="unpin">unpin</option>
+                  <option value="move">move</option>
+                  <option value="delete">delete</option>
+                  <option value="warn">warn</option>
+                  <option value="warnings_clear">warnings_clear</option>
+                  <option value="merge">merge</option>
+                </select></label>
+                <label>User <input type="text" id="auditFilterUser" placeholder="Username" style="max-width:120px" /></label>
+                <label>From <input type="date" id="auditFilterFrom" /></label>
+                <label>To <input type="date" id="auditFilterTo" /></label>
+              </div>
+            </div>
+            <div style="height:14px"></div>
+            <div class="card panel" style="padding:0; overflow:hidden">
+              <table class="forum-table" aria-label="Audit log">
+                <thead>
+                  <tr>
+                    <th style="width:14%">Time</th>
+                    <th style="width:14%">User</th>
+                    <th style="width:10%">Action</th>
+                    <th style="width:10%">Target</th>
+                    <th style="width:52%">Details</th>
+                  </tr>
+                </thead>
+                <tbody id="auditRows"></tbody>
+              </table>
+            </div>
+            <p class="note" id="auditStatus" style="margin-top:12px"> </p>
+          </section>
+
+          <section class="admin-section" data-admin-section="reports">
+            <div class="card panel">
+              <h2>Post reports</h2>
+              <p class="muted">Reports submitted by users. Review and take action as needed.</p>
+              <div class="cta-row" style="margin-top:10px">
+                <button type="button" class="btn primary" id="reportsRefreshBtn"><strong>Refresh</strong></button>
+              </div>
+            </div>
+            <div style="height:14px"></div>
+            <div class="card panel" style="padding:0; overflow:hidden">
+              <table class="forum-table" aria-label="Reports">
+                <thead>
+                  <tr>
+                    <th style="width:10%">Date</th>
+                    <th style="width:12%">Reporter</th>
+                    <th style="width:8%">Type</th>
+                    <th style="width:8%">Post</th>
+                    <th style="width:28%">Reason</th>
+                    <th style="width:10%">Status</th>
+                    <th style="width:12%">Resolution / Note</th>
+                    <th style="width:12%">Link / Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="reportRows"></tbody>
+              </table>
+            </div>
+            <p class="note" id="reportsStatus" style="margin-top:12px"> </p>
+          </section>
+
+          <section class="admin-section" data-admin-section="users">
+            <div class="card panel">
+              <h2>Community Users</h2>
+              <p class="muted">Create accounts and assign each user a <strong>rank</strong>. Permissions are set in the Ranks section.</p>
+              <div class="cta-row" style="margin-top:10px; flex-wrap:wrap; gap:10px; align-items:center">
+                <label for="userSearchInput">Search</label>
+                <input id="userSearchInput" type="text" placeholder="Username or display name…" style="max-width:240px" />
+                <button type="button" class="btn" id="exportUsersCsvBtn"><strong>Export CSV</strong></button>
+              </div>
+            </div>
+
+            <div style="height:14px"></div>
+
+            <div class="two-col">
+              <div class="card panel">
+                <h2>Create User</h2>
+                <form id="createUserForm" style="margin-top:12px">
+                  <div class="form-grid">
+                    <div>
+                      <label for="cu_username">Username</label>
+                      <input id="cu_username" name="username" required placeholder="letters/numbers/_ (3–20)" />
+                    </div>
+                    <div>
+                      <label for="cu_displayName">Display name</label>
+                      <input id="cu_displayName" name="displayName" placeholder="Shown on posts" />
+                    </div>
+                  </div>
+
+                  <div style="height:12px"></div>
+
+                  <div class="form-grid">
+                    <div>
+                      <label for="cu_rank">Rank</label>
+                      <select id="cu_rank" name="rankId" required></select>
+                    </div>
+                    <div>
+                      <label for="cu_password">Password</label>
+                      <input id="cu_password" name="password" type="password" required />
+                    </div>
+                  </div>
+
+                  <div class="form-actions">
+                    <button class="btn primary" type="submit"><strong>Create</strong></button>
+                    <button class="btn" type="button" id="refreshBtn"><strong>Refresh list</strong></button>
+                  </div>
+                  <p class="note" id="createStatus" style="margin-top:12px"> </p>
+                </form>
+              </div>
+
+              <div class="card panel">
+                <h2>Assign rank</h2>
+                <p class="muted">
+                  Use the table below: set each user's <strong>Rank</strong> and click Save. Ranks and their permissions are managed in the Ranks section.
+                </p>
+                <div class="cta-row" style="margin-top:10px">
+                  <a class="btn" href="./topics.html?cat=30"><strong>Staff Applications</strong></a>
+                  <a class="btn red" href="./topics.html?cat=40"><strong>Ban Appeals</strong></a>
+                </div>
+              </div>
+            </div>
+
+            <div style="height:14px"></div>
+
+            <div class="card panel" style="padding:0; overflow:hidden">
+              <table class="forum-table" aria-label="Users">
+                <thead>
+                  <tr>
+                    <th style="width:12%">Username</th>
+                    <th style="width:12%">Display name</th>
+                    <th style="width:10%">Rank</th>
+                    <th style="width:6%">Warnings</th>
+                    <th style="width:6%">Disabled</th>
+                    <th style="width:14%">Notes</th>
+                    <th style="width:14%">Disabled reason / until</th>
+                    <th style="width:16%">Actions</th>
+                    <th style="width:10%">Created</th>
+                  </tr>
+                </thead>
+                <tbody id="userRows"></tbody>
+              </table>
+            </div>
+
+            <p class="note" id="tableStatus" style="margin-top:12px"> </p>
+          </section>
+
+          <section class="admin-section" data-admin-section="wordfilter">
+            <div class="card panel">
+              <h2>Word filter</h2>
+              <p class="muted">Filter or block words in posts. Staff and admins bypass the filter. One word per line.</p>
+              <form id="wordfilterForm" style="margin-top:14px">
+                <label for="wf_words">Words to filter (one per line)</label>
+                <textarea id="wf_words" rows="6" placeholder="badword&#10;another"></textarea>
+                <div class="form-grid" style="margin-top:12px">
+                  <div>
+                    <label for="wf_replacement">Replacement text</label>
+                    <input id="wf_replacement" placeholder="[removed]" />
+                  </div>
+                  <div style="display:flex; align-items:flex-end; padding-bottom:10px">
+                    <label><input type="checkbox" id="wf_blockPost" /> Block post entirely if it contains a filtered word</label>
+                  </div>
+                </div>
+                <div class="form-actions" style="margin-top:12px">
+                  <button type="submit" class="btn primary"><strong>Save</strong></button>
+                </div>
+                <p class="note" id="wordfilterStatus" style="margin-top:10px"> </p>
+              </form>
+            </div>
+          </section>
+
+          <section class="admin-section" data-admin-section="categories">
+            <div class="card panel">
+              <h2>Categories</h2>
+              <p class="muted">Create/edit the forum structure (top categories + subforums).</p>
+            </div>
+
+            <div style="height:14px"></div>
+
+            <div class="card panel">
+              <div class="two-col" style="margin-top:10px">
+                <div class="card panel" style="background:rgba(16,20,23,.55)">
+                  <h2>Create Category / Forum</h2>
+                  <form id="catForm" style="margin-top:12px">
+                    <div class="form-grid">
+                      <div>
+                        <label for="cat_type">Type</label>
+                        <select id="cat_type" required>
+                          <option value="group">Category (top-level)</option>
+                          <option value="forum">Forum (inside a category)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label for="cat_parent">Parent category (for forums)</label>
+                        <select id="cat_parent"></select>
+                      </div>
+                    </div>
+
+                    <div style="height:12px"></div>
+
+                    <div class="form-grid">
+                      <div>
+                        <label for="cat_title">Title</label>
+                        <input id="cat_title" required />
+                      </div>
+                      <div>
+                        <label for="cat_desc">Description</label>
+                        <input id="cat_desc" />
+                      </div>
+                    </div>
+
+                    <div class="form-actions">
+                      <button class="btn primary" type="submit"><strong>Create</strong></button>
+                      <button class="btn" type="button" id="catRefresh"><strong>Refresh categories</strong></button>
+                    </div>
+                    <p class="note" id="catStatus" style="margin-top:12px"> </p>
+                  </form>
+                </div>
+
+                <div class="card panel" style="background:rgba(16,20,23,.55)">
+                  <h2>Existing Structure</h2>
+                  <p class="muted">Edit titles/descriptions and delete items.</p>
+                  <div class="cta-row" style="margin-top:10px">
+                    <a class="btn" href="./forums.html"><strong>View Forums</strong></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="height:14px"></div>
+
+            <div class="card panel" style="padding:0; overflow:hidden">
+              <table class="forum-table" aria-label="Categories">
+                <thead>
+                  <tr>
+                    <th style="width:12%">Type</th>
+                    <th style="width:20%">Title</th>
+                    <th style="width:28%">Description</th>
+                    <th style="width:12%">Parent</th>
+                    <th style="width:12%">Slow mode (min)</th>
+                    <th style="width:16%">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="catRows"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="admin-section" data-admin-section="threads">
+            <div class="card panel">
+              <h2>Threads</h2>
+              <p class="muted">View and moderate all topics across the forums.</p>
+              <div class="cta-row" style="margin-top:10px">
+                <a class="btn primary" href="./create-topic.html"><strong>New thread</strong></a>
+              </div>
+            </div>
+
+            <div id="bulkActionsBar" class="card panel" style="display:none; margin-top:14px; padding:12px">
+              <div class="cta-row" style="flex-wrap:wrap; gap:8px; align-items:center">
+                <strong><span id="bulkCount">0</span> selected</strong>
+                <button type="button" class="btn" id="bulkLock">Lock</button>
+                <button type="button" class="btn" id="bulkUnlock">Unlock</button>
+                <button type="button" class="btn" id="bulkPin">Pin</button>
+                <button type="button" class="btn" id="bulkUnpin">Unpin</button>
+                <button type="button" class="btn" id="bulkMove">Move</button>
+                <button type="button" class="btn red" id="bulkDelete">Delete</button>
+                <button type="button" class="btn" id="bulkClear">Clear</button>
+                <span id="bulkStatus" class="muted" style="margin-left:8px"></span>
+              </div>
+            </div>
+
+            <div id="bulkMoveOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:100; align-items:center; justify-content:center" aria-hidden="true">
+              <div class="card panel" style="max-width:360px">
+                <h3>Move topics to forum</h3>
+                <select id="bulkMoveForum" style="margin-top:8px; width:100%"></select>
+                <div class="cta-row" style="margin-top:12px">
+                  <button type="button" class="btn" id="bulkMoveCancel">Cancel</button>
+                  <button type="button" class="btn primary" id="bulkMoveConfirm"><strong>Move</strong></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card panel" style="margin-top:14px">
+              <h3>Merge threads</h3>
+              <p class="muted">Move all replies from one topic into another, then delete the source topic.</p>
+              <div class="cta-row" style="margin-top:10px; flex-wrap:wrap; gap:10px; align-items:center">
+                <label>From topic <select id="mergeFromTopic" style="min-width:220px"></select></label>
+                <label>Into topic <select id="mergeToTopic" style="min-width:220px"></select></label>
+                <button type="button" class="btn primary" id="mergeThreadsBtn"><strong>Merge</strong></button>
+                <span id="mergeStatus" class="muted"></span>
+              </div>
+            </div>
+
+            <div style="height:14px"></div>
+
+            <div class="card panel" style="padding:0; overflow:hidden">
+              <table class="forum-table" aria-label="Threads">
+                <thead>
+                  <tr>
+                    <th style="width:4%"><label><input type="checkbox" id="threadSelectAll" aria-label="Select all" /></label></th>
+                    <th style="width:28%">Title</th>
+                    <th style="width:18%">Forum</th>
+                    <th style="width:8%">Comments</th>
+                    <th style="width:8%">Locked</th>
+                    <th style="width:8%">Pinned</th>
+                    <th style="width:12%">Created</th>
+                    <th style="width:14%">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="threadRows"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="admin-section" data-admin-section="ranks">
+            <div class="card panel">
+              <h2>Ranks / Roles</h2>
+              <p class="muted">Higher <strong>level</strong> = more permissions. Level 1 = post only. Level 2 = post + moderate. Level 3 = post + moderate + admin panel. Assign ranks to users in Community Users.</p>
+            </div>
+
+            <div style="height:14px"></div>
+
+            <div class="two-col">
+              <div class="card panel">
+                <h2>New Rank</h2>
+                <form id="rankForm" style="margin-top:12px">
+                  <div class="form-grid">
+                    <div>
+                      <label for="rank_name">Name</label>
+                      <input id="rank_name" required placeholder="e.g. Member, Staff, Administrator" />
+                    </div>
+                    <div>
+                      <label for="rank_badge">Badge image URL</label>
+                      <input id="rank_badge" placeholder="Optional image URL" />
+                    </div>
+                  </div>
+
+                  <div style="height:12px"></div>
+
+                  <div class="form-grid">
+                    <div>
+                      <label for="rank_level">Level (higher = more permissions)</label>
+                      <select id="rank_level" required>
+                        <option value="1">1 — Member (post only)</option>
+                        <option value="2">2 — Staff (post + moderate)</option>
+                        <option value="3">3 — Administrator (post + moderate + admin)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label>Default</label>
+                      <label><input type="checkbox" id="rank_default" /> Default for new users</label>
+                    </div>
+                  </div>
+
+                  <div class="form-actions">
+                    <button class="btn primary" type="submit"><strong>Create</strong></button>
+                    <button class="btn" type="button" id="rankRefresh"><strong>Refresh ranks</strong></button>
+                  </div>
+                  <p class="note" id="rankStatus" style="margin-top:12px"> </p>
+                </form>
+              </div>
+
+              <div class="card panel">
+                <h2>Info</h2>
+                <p class="muted">
+                  <strong>Level 1</strong> — Can post. <strong>Level 2</strong> — + lock, pin, delete. <strong>Level 3</strong> — + access this admin panel. Higher number always has more power than a lower number.
+                </p>
+              </div>
+            </div>
+
+            <div style="height:14px"></div>
+
+            <div class="card panel" style="padding:0; overflow:hidden">
+              <table class="forum-table" aria-label="Ranks">
+                <thead>
+                  <tr>
+                    <th style="width:18%">Name</th>
+                    <th style="width:22%">Badge URL</th>
+                    <th style="width:12%">Level</th>
+                    <th style="width:20%">Permissions</th>
+                    <th style="width:10%">Default</th>
+                    <th style="width:18%">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="rankRows"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="admin-section" data-admin-section="appeals">
+            <div class="card panel">
+              <h2>Appeal boards</h2>
+              <p class="muted">Review appeals and mark them as <strong>Accepted</strong> or <strong>Denied</strong>. Choose a board to filter.</p>
+              <div style="margin-top:12px">
+                <label for="appealBoardFilter">Board</label>
+                <select id="appealBoardFilter" style="margin-left:8px; min-width:180px">
+                  <option value="">All appeal boards</option>
+                  <option value="40">Ban Appeals</option>
+                  <option value="41">PK Appeals</option>
+                  <option value="42">Flag Appeals</option>
+                </select>
+                <button type="button" class="btn" id="appealsRefreshBtn" style="margin-left:10px"><strong>Refresh</strong></button>
+              </div>
+            </div>
+            <div style="height:14px"></div>
+            <div class="card panel" style="padding:0; overflow:hidden">
+              <table class="forum-table" aria-label="Appeals">
+                <thead>
+                  <tr>
+                    <th style="width:22%">Title</th>
+                    <th style="width:10%">Board</th>
+                    <th style="width:10%">Status</th>
+                    <th style="width:12%">Assignee</th>
+                    <th style="width:14%">Staff note</th>
+                    <th style="width:8%">Replies</th>
+                    <th style="width:10%">Created</th>
+                    <th style="width:14%">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="appealRows"></tbody>
+              </table>
+            </div>
+            <p class="note" id="appealStatus" style="margin-top:12px"> </p>
+          </section>
+
+          <section class="admin-section" data-admin-section="applications">
+            <div class="card panel">
+              <h2>Application boards</h2>
+              <p class="muted">Review applications and mark them as <strong>Accepted</strong> or <strong>Denied</strong>. Choose a board to filter.</p>
+              <div style="margin-top:12px">
+                <label for="applicationBoardFilter">Board</label>
+                <select id="applicationBoardFilter" style="margin-left:8px; min-width:180px">
+                  <option value="">All application boards</option>
+                  <option value="30">Staff Applications</option>
+                  <option value="31">Trusted Applications</option>
+                  <option value="32">Criminal Organization Applications</option>
+                  <option value="33">Vendor Applications</option>
+                  <option value="45">Accepted (applications)</option>
+                  <option value="46">Denied (applications)</option>
+                </select>
+                <button type="button" class="btn" id="applicationsRefreshBtn" style="margin-left:10px"><strong>Refresh</strong></button>
+              </div>
+            </div>
+            <div style="height:14px"></div>
+            <div class="card panel" style="padding:0; overflow:hidden">
+              <table class="forum-table" aria-label="Applications">
+                <thead>
+                  <tr>
+                    <th style="width:32%">Title</th>
+                    <th style="width:14%">Board</th>
+                    <th style="width:12%">Status</th>
+                    <th style="width:10%">Replies</th>
+                    <th style="width:14%">Created</th>
+                    <th style="width:18%">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="applicationRows"></tbody>
+              </table>
+            </div>
+            <p class="note" id="applicationStatus" style="margin-top:12px"> </p>
+          </section>
+
+          <section class="admin-section" data-admin-section="announcements">
+            <div class="card panel">
+              <h2>Site announcement</h2>
+              <p class="muted">A banner shown at the top of the site. Set start/end dates for scheduled announcements (optional).</p>
+              <form id="announcementForm" style="margin-top:14px">
+                <div>
+                  <label for="announcementText">Message</label>
+                  <input id="announcementText" type="text" placeholder="e.g. Server maintenance Saturday 2–4 PM" style="width:100%; max-width:480px" />
+                </div>
+                <div style="margin-top:12px">
+                  <label for="announcementLink">Optional link URL</label>
+                  <input id="announcementLink" type="url" placeholder="https://…" style="width:100%; max-width:480px" />
+                </div>
+                <div class="form-grid" style="margin-top:12px">
+                  <div>
+                    <label for="announcementStartDate">Start date (optional)</label>
+                    <input id="announcementStartDate" type="datetime-local" />
+                  </div>
+                  <div>
+                    <label for="announcementEndDate">End date (optional)</label>
+                    <input id="announcementEndDate" type="datetime-local" />
+                  </div>
+                </div>
+                <div class="form-actions" style="margin-top:14px">
+                  <button type="submit" class="btn primary"><strong>Save announcement</strong></button>
+                  <button type="button" class="btn" id="announcementClearBtn"><strong>Clear</strong></button>
+                </div>
+                <p class="note" id="announcementStatus" style="margin-top:10px">Saved on server. Shown only when current time is between start and end (if set).</p>
+              </form>
+            </div>
+          </section>
+
+          <section class="admin-section" data-admin-section="theme">
+            <div class="card panel">
+              <h2>Theme Settings</h2>
+              <p class="muted">Override site colors and add custom CSS. Values are saved in your browser and applied across the site.</p>
+
+              <form id="themeForm" style="margin-top:12px">
+                <div class="form-grid">
+                  <div>
+                    <label for="themePrimary">Primary (links, buttons)</label>
+                    <input id="themePrimary" name="primary" placeholder="#0ea5e9" />
+                  </div>
+                  <div>
+                    <label for="themeNeutral">Neutral (background)</label>
+                    <input id="themeNeutral" name="neutral" placeholder="#111827" />
+                  </div>
+                </div>
+                <div style="height:12px"></div>
+                <div class="form-grid">
+                  <div>
+                    <label for="themeDanger">Danger (delete, alerts)</label>
+                    <input id="themeDanger" name="danger" placeholder="#ef4444" />
+                  </div>
+                  <div>
+                    <label for="themeCustomCss">Custom CSS</label>
+                    <textarea id="themeCustomCss" name="customCss" placeholder="Optional: add extra CSS rules (e.g. .btn { border-radius: 8px; })" rows="4"></textarea>
+                  </div>
+                </div>
+                <div class="form-actions" style="margin-top:12px">
+                  <button class="btn primary" type="submit"><strong>Save theme</strong></button>
+                  <button class="btn" type="button" id="themeResetBtn"><strong>Reset to default</strong></button>
+                </div>
+                <p class="note" id="themeStatus" style="margin-top:12px"> </p>
+              </form>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Admin panel.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./apply.html">Staff Application</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      // Always hit API on same origin as the page (avoids 404 when path/base is wrong)
+      function apiUrl(path) {
+        return location.origin + (path.startsWith("/") ? path : "/" + path);
+      }
+
+      const userRows = document.getElementById("userRows");
+      const tableStatus = document.getElementById("tableStatus");
+      const createStatus = document.getElementById("createStatus");
+      let allUsersList = [];
+      const catRows = document.getElementById("catRows");
+      const catParent = document.getElementById("cat_parent");
+      const catType = document.getElementById("cat_type");
+      const catStatus = document.getElementById("catStatus");
+      const rankSelect = document.getElementById("cu_rank");
+      const threadRows = document.getElementById("threadRows");
+      const rankRows = document.getElementById("rankRows");
+      const rankStatus = document.getElementById("rankStatus");
+      let rankList = [];
+
+      async function loadRanks() {
+        const res = await fetch(apiUrl("/api/admin/ranks"));
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || !json.ok) {
+          if (rankStatus) rankStatus.textContent = res.status === 403 ? "Access denied. Sign in as admin." : "Failed to load ranks.";
+          return;
+        }
+        if (rankStatus) rankStatus.textContent = "";
+        rankList = Array.isArray(json.ranks) ? json.ranks : [];
+        // Sort by level descending (highest = most permissions first)
+        rankList.sort((a, b) => (b.level || 1) - (a.level || 1));
+
+        // fill create-user dropdown
+        if (rankSelect) {
+          rankSelect.innerHTML = "";
+          let defaultRankId = "";
+          for (const r of rankList) {
+            const opt = document.createElement("option");
+            opt.value = String(r.id);
+            opt.textContent = r.name ? `${r.name} (Level ${r.level || 1})` : String(r.id);
+            rankSelect.appendChild(opt);
+            if (r.default) defaultRankId = String(r.id);
+          }
+          if (defaultRankId) rankSelect.value = defaultRankId;
+          else if (rankList.length > 0) rankSelect.value = String(rankList[0].id);
+        }
+
+        // fill ranks table (level + permissions text)
+        function levelLabel(l) {
+          const L = Number(l) || 1;
+          if (L >= 3) return "Post, Moderate, Admin";
+          if (L >= 2) return "Post, Moderate";
+          return "Post only";
+        }
+        if (!rankRows) return;
+        rankRows.innerHTML = "";
+        for (const r of rankList) {
+          const lvl = r.level != null ? r.level : 1;
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><input value="${escapeHtml(r.name || "")}" data-rname="${escapeAttr(r.id)}" /></td>
+            <td><input value="${escapeHtml(r.badgeUrl || "")}" data-rbadge="${escapeAttr(r.id)}" /></td>
+            <td>
+              <select data-rlevel="${escapeAttr(r.id)}">
+                <option value="1" ${lvl === 1 ? "selected" : ""}>1 — Member</option>
+                <option value="2" ${lvl === 2 ? "selected" : ""}>2 — Staff</option>
+                <option value="3" ${lvl === 3 ? "selected" : ""}>3 — Administrator</option>
+              </select>
+            </td>
+            <td class="muted">${escapeHtml(levelLabel(lvl))}</td>
+            <td style="text-align:center"><input type="checkbox" data-rdefault="${escapeAttr(r.id)}" ${r.default ? "checked" : ""} /></td>
+            <td>
+              <div class="cta-row" style="gap:8px">
+                <a class="btn" href="#" data-rsave="${escapeAttr(r.id)}"><strong>Save</strong></a>
+                <a class="btn red" href="#" data-rdel="${escapeAttr(r.id)}"><strong>Delete</strong></a>
+              </div>
+            </td>
+          `;
+          rankRows.appendChild(tr);
+        }
+
+        // wire rank row buttons
+        rankRows.querySelectorAll("[data-rsave]").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("data-rsave");
+            const name = document.querySelector(`[data-rname="${css(id)}"]`).value;
+            const badgeUrl = document.querySelector(`[data-rbadge="${css(id)}"]`).value;
+            const level = Number(document.querySelector(`[data-rlevel="${css(id)}"]`).value) || 1;
+            const isDefault = document.querySelector(`[data-rdefault="${css(id)}"]`).checked;
+            rankStatus.textContent = "Saving rank…";
+            const res = await fetch(apiUrl(`/api/admin/ranks/${encodeURIComponent(id)}`), {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name, badgeUrl, level, default: isDefault }),
+            });
+            const json = await res.json().catch(() => null);
+            if (!res.ok || !json || !json.ok) {
+              rankStatus.textContent = (json && json.error) || `Save failed (${res.status})`;
+              return;
+            }
+            rankStatus.textContent = "Rank saved.";
+            await loadRanks();
+          });
+        });
+
+        rankRows.querySelectorAll("[data-rdel]").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("data-rdel");
+            if (!confirm("Delete this rank? Users using it must be moved first.")) return;
+            rankStatus.textContent = "Deleting rank…";
+            const res = await fetch(apiUrl(`/api/admin/ranks/${encodeURIComponent(id)}`), { method: "DELETE" });
+            const json = await res.json().catch(() => null);
+            if (!res.ok || !json || !json.ok) {
+              rankStatus.textContent = (json && json.error) || `Delete failed (${res.status})`;
+              return;
+            }
+            rankStatus.textContent = "Rank deleted.";
+            await loadRanks();
+          });
+        });
+      }
+
+      function renderUserRows(users) {
+        if (!userRows) return;
+        userRows.innerHTML = "";
+        const defaultRankId = rankList.find((r) => r.default) ? rankList.find((r) => r.default).id : (rankList[0] && rankList[0].id);
+        for (const u of users) {
+          const wCount = u.warningsCount != null ? u.warningsCount : 0;
+          const notesVal = (u.staffNotes || "").slice(0, 200);
+          const reasonVal = (u.disabledReason || "").slice(0, 100);
+          const untilVal = u.disabledUntil ? String(u.disabledUntil).slice(0, 10) : "";
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(u.username)}</strong><div class="muted" style="font-size:12px">${escapeHtml(u.id)}</div></td>
+            <td><input value="${escapeHtml(u.displayName || "")}" data-display="${escapeAttr(u.id)}" /></td>
+            <td><select data-rank="${escapeAttr(u.id)}"></select></td>
+            <td style="text-align:center">${wCount}</td>
+            <td style="text-align:center"><input type="checkbox" ${u.disabled ? "checked" : ""} data-disabled="${escapeAttr(u.id)}" /></td>
+            <td><input type="text" value="${escapeHtml(notesVal)}" data-notes="${escapeAttr(u.id)}" placeholder="Staff notes" style="max-width:140px" title="${escapeAttr(u.staffNotes || "")}" /></td>
+            <td><input type="text" value="${escapeHtml(reasonVal)}" data-disabled-reason="${escapeAttr(u.id)}" placeholder="Reason" style="max-width:90px" /><input type="date" value="${escapeAttr(untilVal)}" data-disabled-until="${escapeAttr(u.id)}" style="max-width:100px; margin-left:4px" title="Disabled until (optional)" /></td>
+            <td>
+              <div class="cta-row" style="gap:6px; flex-wrap:wrap">
+                <a class="btn" href="#" data-save="${escapeAttr(u.id)}"><strong>Save</strong></a>
+                <a class="btn" href="#" data-warn="${escapeAttr(u.id)}"><strong>Warn</strong></a>
+                <a class="btn" href="#" data-warn-clear="${escapeAttr(u.id)}" style="display:${wCount ? "" : "none"}"><strong>Clear</strong></a>
+                <a class="btn red" href="#" data-reset="${escapeAttr(u.id)}"><strong>Reset PW</strong></a>
+                <a class="btn red" href="#" data-del="${escapeAttr(u.id)}"><strong>Delete</strong></a>
+              </div>
+            </td>
+            <td class="muted">${escapeHtml(new Date(u.createdAt).toLocaleDateString())}</td>
+          `;
+          userRows.appendChild(tr);
+        }
+        for (const u of users) {
+          const sel = userRows.querySelector(`[data-rank="${css(u.id)}"]`);
+          if (!sel) continue;
+          sel.innerHTML = "";
+          for (const r of rankList) {
+            const opt = document.createElement("option");
+            opt.value = String(r.id);
+            opt.textContent = r.name || `Rank #${r.id}`;
+            const userRankId = u.rankId != null ? u.rankId : defaultRankId;
+            if (String(userRankId) === String(r.id)) opt.selected = true;
+            sel.appendChild(opt);
+          }
+        }
+        wireRowButtons();
+      }
+
+      async function loadUsers() {
+        tableStatus.textContent = "Loading users…";
+        userRows.innerHTML = "";
+        const res = await fetch(apiUrl("/api/admin/users"));
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || !json.ok) {
+          tableStatus.textContent = (json && json.error) || `Failed to load users (${res.status})`;
+          return;
+        }
+        allUsersList = Array.isArray(json.users) ? json.users : [];
+        const q = (document.getElementById("userSearchInput") || {}).value || "";
+        const search = q.trim().toLowerCase();
+        const filtered = search ? allUsersList.filter((u) => (u.username || "").toLowerCase().includes(search) || (u.displayName || "").toLowerCase().includes(search)) : allUsersList;
+        tableStatus.textContent = search ? `Showing ${filtered.length} of ${allUsersList.length} users.` : `Loaded ${allUsersList.length} users.`;
+        renderUserRows(filtered);
+      }
+
+      function wireRowButtons() {
+        userRows.querySelectorAll("[data-save]").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("data-save");
+            const displayName = userRows.querySelector(`[data-display="${css(id)}"]`).value;
+            const rankId = Number(userRows.querySelector(`[data-rank="${css(id)}"]`).value);
+            const disabled = userRows.querySelector(`[data-disabled="${css(id)}"]`).checked;
+            const staffNotes = userRows.querySelector(`[data-notes="${css(id)}"]`);
+            const disabledReasonEl = userRows.querySelector(`[data-disabled-reason="${css(id)}"]`);
+            const disabledUntilEl = userRows.querySelector(`[data-disabled-until="${css(id)}"]`);
+            const staffNotesVal = staffNotes ? staffNotes.value : "";
+            const disabledReason = disabledReasonEl ? disabledReasonEl.value.trim() : "";
+            const disabledUntil = disabledUntilEl ? (disabledUntilEl.value || null) : null;
+
+            tableStatus.textContent = "Saving…";
+            const res = await fetch(apiUrl(`/api/admin/users/${encodeURIComponent(id)}`), {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ displayName, rankId, disabled, staffNotes: staffNotesVal, disabledReason: disabledReason || null, disabledUntil }),
+            });
+            const json = await res.json().catch(() => null);
+            if (!res.ok || !json || !json.ok) {
+              tableStatus.textContent = (json && json.error) || `Save failed (${res.status})`;
+              return;
+            }
+            tableStatus.textContent = "Saved.";
+            await loadUsers();
+          });
+        });
+
+        userRows.querySelectorAll("[data-reset]").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("data-reset");
+            const pw = prompt("Enter a new password (min 6 chars) for this user:");
+            if (!pw) return;
+            tableStatus.textContent = "Resetting password…";
+            const res = await fetch(apiUrl(`/api/admin/users/${encodeURIComponent(id)}`), {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ password: pw }),
+            });
+            const json = await res.json().catch(() => null);
+            if (!res.ok || !json || !json.ok) {
+              tableStatus.textContent = (json && json.error) || `Reset failed (${res.status})`;
+              return;
+            }
+            tableStatus.textContent = "Password reset.";
+          });
+        });
+
+        userRows.querySelectorAll("[data-del]").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("data-del");
+            if (!confirm("Delete this user?")) return;
+            tableStatus.textContent = "Deleting…";
+            const res = await fetch(apiUrl(`/api/admin/users/${encodeURIComponent(id)}`), { method: "DELETE" });
+            const json = await res.json().catch(() => null);
+            if (!res.ok || !json || !json.ok) {
+              tableStatus.textContent = (json && json.error) || `Delete failed (${res.status})`;
+              return;
+            }
+            tableStatus.textContent = "Deleted.";
+            await loadUsers();
+          });
+        });
+
+        userRows.querySelectorAll("[data-warn]").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("data-warn");
+            const reason = prompt("Reason for warning (optional):") || "No reason given.";
+            tableStatus.textContent = "Adding warning…";
+            const res = await fetch(apiUrl(`/api/admin/users/${encodeURIComponent(id)}/warn`), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ reason: reason.trim() || "No reason given." }),
+            });
+            const json = await res.json().catch(() => null);
+            if (!res.ok || !json || !json.ok) {
+              tableStatus.textContent = (json && json.error) || `Warn failed (${res.status})`;
+              return;
+            }
+            tableStatus.textContent = `Warning added. Total: ${json.warningsCount || 0}.`;
+            await loadUsers();
+          });
+        });
+
+        userRows.querySelectorAll("[data-warn-clear]").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("data-warn-clear");
+            if (!confirm("Clear all warnings for this user?")) return;
+            tableStatus.textContent = "Clearing…";
+            const res = await fetch(apiUrl(`/api/admin/users/${encodeURIComponent(id)}/warnings/clear`), { method: "POST" });
+            const json = await res.json().catch(() => null);
+            if (!res.ok || !json || !json.ok) {
+              tableStatus.textContent = (json && json.error) || `Clear failed (${res.status})`;
+              return;
+            }
+            tableStatus.textContent = `Cleared ${json.cleared || 0} warning(s).`;
+            await loadUsers();
+          });
+        });
+      }
+
+      document.getElementById("refreshBtn").addEventListener("click", loadUsers);
+
+      const userSearchInput = document.getElementById("userSearchInput");
+      if (userSearchInput) {
+        userSearchInput.addEventListener("input", () => {
+          if (allUsersList.length === 0) return;
+          const q = userSearchInput.value.trim().toLowerCase();
+          const filtered = q ? allUsersList.filter((u) => (u.username || "").toLowerCase().includes(q) || (u.displayName || "").toLowerCase().includes(q)) : allUsersList;
+          if (tableStatus) tableStatus.textContent = q ? `Showing ${filtered.length} of ${allUsersList.length} users.` : `Loaded ${allUsersList.length} users.`;
+          renderUserRows(filtered);
+        });
+      }
+
+      async function loadCategories() {
+        catStatus.textContent = "Loading categories…";
+        catRows.innerHTML = "";
+        catParent.innerHTML = "";
+        const res = await fetch(apiUrl("/api/admin/categories"));
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || !json.ok) {
+          catStatus.textContent = (json && json.error) || `Failed to load categories (${res.status})`;
+          return;
+        }
+
+        const groups = json.categories.filter((c) => c.type === "group").sort((a, b) => a.id - b.id);
+        const forums = json.categories.filter((c) => c.type === "forum").sort((a, b) => a.id - b.id);
+
+        // parent dropdown
+        for (const g of groups) {
+          const opt = document.createElement("option");
+          opt.value = String(g.id);
+          opt.textContent = `${g.title} (#${g.id})`;
+          catParent.appendChild(opt);
+        }
+
+        const parentTitle = (id) => {
+          const g = groups.find((x) => x.id === id);
+          return g ? g.title : "—";
+        };
+
+        const all = [...groups, ...forums];
+        catStatus.textContent = `Loaded ${all.length} items.`;
+
+        for (const c of all) {
+          const tr = document.createElement("tr");
+          const slowVal = c.type === "forum" ? (c.slowModeMinutes != null ? c.slowModeMinutes : 0) : "";
+          const slowCell = c.type === "forum"
+            ? `<td><input type="number" min="0" step="1" style="width:60px" data-cslow="${escapeAttr(c.id)}" value="${escapeAttr(String(slowVal))}" placeholder="0" title="Minutes between posts (0 = off)" /></td>`
+            : "<td class=\"muted\">—</td>";
+          tr.innerHTML = `
+            <td class="muted">${escapeHtml(c.type)}</td>
+            <td><input value="${escapeHtml(c.title || "")}" data-ctitle="${escapeAttr(c.id)}" /></td>
+            <td><input value="${escapeHtml(c.description || "")}" data-cdesc="${escapeAttr(c.id)}" /></td>
+            <td class="muted">${c.type === "forum" ? escapeHtml(parentTitle(c.parentId)) : "—"}</td>
+            ${slowCell}
+            <td>
+              <div class="cta-row" style="gap:8px">
+                <a class="btn" href="#" data-csave="${escapeAttr(c.id)}"><strong>Save</strong></a>
+                <a class="btn" href="#" data-cdel="${escapeAttr(c.id)}"><strong>Delete</strong></a>
+              </div>
+            </td>
+          `;
+          catRows.appendChild(tr);
+        }
+
+        catRows.querySelectorAll("[data-csave]").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("data-csave");
+            const title = document.querySelector(`[data-ctitle="${css(id)}"]`).value;
+            const description = document.querySelector(`[data-cdesc="${css(id)}"]`).value;
+            const slowEl = document.querySelector(`[data-cslow="${css(id)}"]`);
+            const payload = { title, description };
+            if (slowEl) {
+              const v = parseInt(slowEl.value, 10);
+              payload.slowModeMinutes = Number.isFinite(v) && v >= 0 ? v : 0;
+            }
+            catStatus.textContent = "Saving…";
+            const res = await fetch(apiUrl(`/api/admin/categories/${encodeURIComponent(id)}`), {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            const json = await res.json().catch(() => null);
+            if (!res.ok || !json || !json.ok) {
+              catStatus.textContent = (json && json.error) || `Save failed (${res.status})`;
+              return;
+            }
+            catStatus.textContent = "Saved.";
+            await loadCategories();
+          });
+        });
+
+        catRows.querySelectorAll("[data-cdel]").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("data-cdel");
+            if (!confirm("Delete this item?")) return;
+            catStatus.textContent = "Deleting…";
+            const res = await fetch(apiUrl(`/api/admin/categories/${encodeURIComponent(id)}`), { method: "DELETE" });
+            const json = await res.json().catch(() => null);
+            if (!res.ok || !json || !json.ok) {
+              catStatus.textContent = (json && json.error) || `Delete failed (${res.status})`;
+              return;
+            }
+            catStatus.textContent = "Deleted.";
+            await loadCategories();
+          });
+        });
+      }
+
+      document.getElementById("catRefresh").addEventListener("click", loadCategories);
+      catType.addEventListener("change", () => {
+        catParent.disabled = catType.value !== "forum";
+      });
+      catParent.disabled = catType.value !== "forum";
+
+      document.getElementById("catForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        catStatus.textContent = "Creating…";
+        const payload = {
+          type: catType.value,
+          parentId: catType.value === "forum" ? Number(catParent.value) : null,
+          title: document.getElementById("cat_title").value,
+          description: document.getElementById("cat_desc").value,
+        };
+        const res = await fetch(apiUrl("/api/admin/categories"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || !json.ok) {
+          catStatus.textContent = (json && json.error) || `Create failed (${res.status})`;
+          return;
+        }
+        catStatus.textContent = `Created (#${json.id}).`;
+        e.target.reset();
+        catParent.disabled = catType.value !== "forum";
+        await loadCategories();
+      });
+
+      document.getElementById("createUserForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const rankEl = document.getElementById("cu_rank");
+        const rankIdVal = rankEl && rankEl.value ? Number(rankEl.value) : (rankList[0] && rankList[0].id);
+        if (!rankIdVal || !Number.isFinite(rankIdVal)) {
+          createStatus.textContent = "No rank selected. Create a rank in the Ranks section first.";
+          return;
+        }
+        createStatus.textContent = "Creating user…";
+        const payload = {
+          username: document.getElementById("cu_username").value,
+          displayName: document.getElementById("cu_displayName").value,
+          rankId: rankIdVal,
+          password: document.getElementById("cu_password").value,
+        };
+        const res = await fetch(apiUrl("/api/admin/users"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || !json.ok) {
+          const msg = (json && json.error) ? String(json.error) : `Create failed (${res.status})`;
+          createStatus.textContent = msg;
+          return;
+        }
+        createStatus.textContent = `Created user (${json.id}).`;
+        e.target.reset();
+        await loadUsers();
+      });
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      }
+      function escapeAttr(s) {
+        return escapeHtml(s).replace(/"/g, "&quot;");
+      }
+      function css(s) {
+        return CSS.escape(String(s));
+      }
+      let threadsList = [];
+      function fillMergeDropdowns() {
+        const fromSel = document.getElementById("mergeFromTopic");
+        const toSel = document.getElementById("mergeToTopic");
+        if (!fromSel || !toSel) return;
+        fromSel.innerHTML = "<option value=\"\">— Select source topic —</option>";
+        toSel.innerHTML = "<option value=\"\">— Select target topic —</option>";
+        for (const t of threadsList) {
+          const label = `${escapeHtml((t.title || "").slice(0, 40))}${(t.title || "").length > 40 ? "…" : ""} (#${t.id})`;
+          fromSel.appendChild(new Option(label, String(t.id)));
+          toSel.appendChild(new Option(label, String(t.id)));
+        }
+      }
+
+      async function loadThreads() {
+        if (!threadRows) return;
+        threadRows.innerHTML = "";
+        const res = await fetch(apiUrl("/api/admin/topics"));
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || !json.ok) {
+          const msg = (json && json.error) || `Failed to load threads (${res.status})`;
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td colspan="8" class="muted">${escapeHtml(msg)}</td>`;
+          threadRows.appendChild(tr);
+          return;
+        }
+        threadsList = json.topics || [];
+        for (const t of threadsList) {
+          const tr = document.createElement("tr");
+          const locked = !!t.lockedAt;
+          const pinned = !!t.pinnedAt;
+          tr.innerHTML = `
+            <td><label><input type="checkbox" class="thread-cb" data-topic-id="${escapeAttr(t.id)}" aria-label="Select topic" /></label></td>
+            <td><a href="./topic.html?id=${encodeURIComponent(t.id)}"><strong>${escapeHtml(t.title || "")}</strong></a></td>
+            <td class="muted">${escapeHtml(t.categoryTitle || String(t.categoryId || ""))}</td>
+            <td class="muted">${t.replies}</td>
+            <td class="muted">${locked ? "Yes" : "No"}</td>
+            <td class="muted">${pinned ? "Yes" : "No"}</td>
+            <td class="muted">${escapeHtml(new Date(t.createdAt).toLocaleDateString())}</td>
+            <td>
+              <a class="btn red" href="#" data-thread-del="${escapeAttr(t.id)}"><strong>Delete</strong></a>
+            </td>
+          `;
+          threadRows.appendChild(tr);
+        }
+        updateBulkBar();
+        const selectAllEl = document.getElementById("threadSelectAll");
+        if (selectAllEl) selectAllEl.addEventListener("change", function () {
+          threadRows.querySelectorAll(".thread-cb").forEach((cb) => { cb.checked = this.checked; });
+          updateBulkBar();
+        });
+        threadRows.querySelectorAll(".thread-cb").forEach((cb) => {
+          cb.addEventListener("change", updateBulkBar);
+        });
+        threadRows.querySelectorAll("[data-thread-del]").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("data-thread-del");
+            if (!confirm("Permanently delete this topic? This cannot be undone.")) return;
+            const res = await fetch(apiUrl(`/api/topics/${encodeURIComponent(id)}`), { method: "DELETE", credentials: "same-origin" });
+            const json = await res.json().catch(() => null);
+            if (!res.ok || !json || !json.ok) {
+              alert((json && json.error) || `Delete failed (${res.status})`);
+              return;
+            }
+            loadThreads();
+          });
+        });
+        fillMergeDropdowns();
+      }
+
+      const mergeThreadsBtn = document.getElementById("mergeThreadsBtn");
+      const mergeStatusEl = document.getElementById("mergeStatus");
+      if (mergeThreadsBtn) {
+        mergeThreadsBtn.addEventListener("click", async () => {
+          const fromSel = document.getElementById("mergeFromTopic");
+          const toSel = document.getElementById("mergeToTopic");
+          const fromId = fromSel && fromSel.value ? Number(fromSel.value) : 0;
+          const toId = toSel && toSel.value ? Number(toSel.value) : 0;
+          if (!fromId || !toId) {
+            if (mergeStatusEl) mergeStatusEl.textContent = "Select both source and target topic.";
+            return;
+          }
+          if (fromId === toId) {
+            if (mergeStatusEl) mergeStatusEl.textContent = "Source and target must be different.";
+            return;
+          }
+          if (!confirm("Merge all replies from the source topic into the target, then delete the source topic? This cannot be undone.")) return;
+          if (mergeStatusEl) mergeStatusEl.textContent = "Merging…";
+          const res = await fetch(apiUrl("/api/admin/topics/merge"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ fromTopicId: fromId, toTopicId: toId }),
+          });
+          const json = await res.json().catch(() => null);
+          if (!res.ok || !json || !json.ok) {
+            if (mergeStatusEl) mergeStatusEl.textContent = (json && json.error) || `Merge failed (${res.status})`;
+            return;
+          }
+          if (mergeStatusEl) mergeStatusEl.textContent = `Merged. ${json.repliesMoved ?? 0} reply(ies) moved.`;
+          loadThreads();
+        });
+      }
+
+      document.getElementById("rankForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        rankStatus.textContent = "Creating rank…";
+        const levelEl = document.getElementById("rank_level");
+        const payload = {
+          name: document.getElementById("rank_name").value,
+          badgeUrl: document.getElementById("rank_badge").value,
+          level: levelEl ? Math.min(3, Math.max(1, Number(levelEl.value) || 1)) : 1,
+          default: document.getElementById("rank_default").checked,
+        };
+        const res = await fetch(apiUrl("/api/admin/ranks"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || !json.ok) {
+          rankStatus.textContent = (json && json.error) ? String(json.error) : `Create failed (${res.status})`;
+          return;
+        }
+        rankStatus.textContent = `Created rank (#${json.id}).`;
+        e.target.reset();
+        await loadRanks();
+      });
+
+      document.getElementById("rankRefresh").addEventListener("click", loadRanks);
+
+      const APPEAL_BOARD_IDS = [40, 41, 42];
+      const appealRows = document.getElementById("appealRows");
+      const appealStatusEl = document.getElementById("appealStatus");
+
+      let appealUsersList = [];
+      async function loadAppeals() {
+        if (!appealRows) return;
+        appealRows.innerHTML = "";
+        if (appealStatusEl) appealStatusEl.textContent = "Loading appeals…";
+        const [topicsRes, usersRes] = await Promise.all([
+          fetch(apiUrl("/api/admin/topics")),
+          fetch(apiUrl("/api/admin/users")),
+        ]);
+        const json = await topicsRes.json().catch(() => null);
+        if (!topicsRes.ok || !json || !json.ok) {
+          const msg = (json && json.error) || `Failed to load (${topicsRes.status})`;
+          appealRows.innerHTML = `<tr><td colspan="8" class="muted">${escapeHtml(msg)}</td></tr>`;
+          if (appealStatusEl) appealStatusEl.textContent = msg;
+          return;
+        }
+        const usersJson = await usersRes.json().catch(() => null);
+        appealUsersList = (usersRes.ok && usersJson && usersJson.ok && usersJson.users) ? usersJson.users : [];
+
+        const boardFilter = document.getElementById("appealBoardFilter");
+        const catFilter = boardFilter && boardFilter.value ? Number(boardFilter.value) : null;
+        let topics = (json.topics || []).filter((t) => t.categoryId != null && APPEAL_BOARD_IDS.includes(Number(t.categoryId)));
+        if (catFilter && Number.isFinite(catFilter)) {
+          topics = topics.filter((t) => Number(t.categoryId) === catFilter);
+        }
+        if (appealStatusEl) appealStatusEl.textContent = `${topics.length} appeal(s) in this board.`;
+        for (const t of topics) {
+          const tr = document.createElement("tr");
+          const status = (t.status || "open").toLowerCase();
+          const assigneeId = t.assignedTo || "";
+          const staffNoteVal = (t.staffNote || "").slice(0, 80);
+          let assigneeOptions = "<option value=\"\">—</option>";
+          for (const u of appealUsersList) {
+            const name = escapeHtml((u.displayName || u.username || u.id || "").slice(0, 25));
+            assigneeOptions += `<option value="${escapeAttr(u.id)}" ${u.id === assigneeId ? "selected" : ""}>${name}</option>`;
+          }
+          tr.innerHTML = `
+            <td><a href="./topic.html?id=${encodeURIComponent(t.id)}"><strong>${escapeHtml((t.title || "").slice(0, 50))}${(t.title || "").length > 50 ? "…" : ""}</strong></a></td>
+            <td class="muted">${escapeHtml(t.categoryTitle || "")}</td>
+            <td><span class="appeal-status appeal-status-${escapeAttr(status)}">${escapeHtml(status)}</span></td>
+            <td><select class="appeal-assignee" data-appeal-id="${escapeAttr(t.id)}" style="max-width:120px">${assigneeOptions}</select></td>
+            <td><input type="text" class="appeal-staff-note" data-appeal-id="${escapeAttr(t.id)}" value="${escapeAttr(staffNoteVal)}" placeholder="Note" style="max-width:140px" /></td>
+            <td class="muted">${t.replies}</td>
+            <td class="muted">${escapeHtml(new Date(t.createdAt).toLocaleDateString())}</td>
+            <td>
+              <div class="cta-row" style="gap:6px; flex-wrap:wrap">
+                <a class="btn" href="#" data-appeal-update="${escapeAttr(t.id)}"><strong>Update</strong></a>
+                <a class="btn primary" href="#" data-appeal-accept="${escapeAttr(t.id)}"><strong>Accept</strong></a>
+                <a class="btn red" href="#" data-appeal-deny="${escapeAttr(t.id)}"><strong>Deny</strong></a>
+                ${status !== "open" ? `<a class="btn" href="#" data-appeal-open="${escapeAttr(t.id)}"><strong>Reopen</strong></a>` : ""}
+              </div>
+            </td>
+          `;
+          appealRows.appendChild(tr);
+        }
+        appealRows.querySelectorAll("[data-appeal-accept]").forEach((a) => {
+          a.addEventListener("click", (e) => { e.preventDefault(); setAppealStatus(a.getAttribute("data-appeal-accept"), "accepted"); });
+        });
+        appealRows.querySelectorAll("[data-appeal-deny]").forEach((a) => {
+          a.addEventListener("click", (e) => { e.preventDefault(); setAppealStatus(a.getAttribute("data-appeal-deny"), "denied"); });
+        });
+        appealRows.querySelectorAll("[data-appeal-open]").forEach((a) => {
+          a.addEventListener("click", (e) => { e.preventDefault(); setAppealStatus(a.getAttribute("data-appeal-open"), "open"); });
+        });
+        appealRows.querySelectorAll("[data-appeal-update]").forEach((a) => {
+          a.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const id = a.getAttribute("data-appeal-update");
+            const row = a.closest("tr");
+            const assigneeSel = row && row.querySelector(".appeal-assignee");
+            const noteInput = row && row.querySelector(".appeal-staff-note");
+            const assignedTo = assigneeSel && assigneeSel.value ? assigneeSel.value : null;
+            const staffNote = noteInput ? noteInput.value.trim() : "";
+            if (appealStatusEl) appealStatusEl.textContent = "Updating…";
+            const res = await fetch(apiUrl(`/api/admin/topics/${encodeURIComponent(id)}`), {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ assignedTo, staffNote }),
+            });
+            const j = await res.json().catch(() => null);
+            if (!res.ok || !j || !j.ok) {
+              if (appealStatusEl) appealStatusEl.textContent = (j && j.error) || "Update failed.";
+              return;
+            }
+            if (appealStatusEl) appealStatusEl.textContent = "Updated.";
+            loadAppeals();
+          });
+        });
+      }
+
+      async function setAppealStatus(topicId, status) {
+        if (!topicId) return;
+        if (appealStatusEl) appealStatusEl.textContent = "Updating…";
+        const res = await fetch(apiUrl(`/api/topics/${encodeURIComponent(topicId)}/status`), {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+          credentials: "same-origin",
+        });
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || !json.ok) {
+          if (appealStatusEl) appealStatusEl.textContent = (json && json.error) || `Update failed (${res.status})`;
+          return;
+        }
+        if (appealStatusEl) appealStatusEl.textContent = `Marked as ${status}.`;
+        loadAppeals();
+      }
+
+      const appealsRefreshBtn = document.getElementById("appealsRefreshBtn");
+      if (appealsRefreshBtn) appealsRefreshBtn.addEventListener("click", loadAppeals);
+      const appealBoardFilter = document.getElementById("appealBoardFilter");
+      if (appealBoardFilter) appealBoardFilter.addEventListener("change", loadAppeals);
+
+      const APPLICATION_BOARD_IDS = [30, 31, 32, 33, 45, 46];
+      const applicationRows = document.getElementById("applicationRows");
+      const applicationStatusEl = document.getElementById("applicationStatus");
+
+      async function loadApplications() {
+        if (!applicationRows) return;
+        applicationRows.innerHTML = "";
+        if (applicationStatusEl) applicationStatusEl.textContent = "Loading applications…";
+        const res = await fetch(apiUrl("/api/admin/topics"));
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || !json.ok) {
+          const msg = (json && json.error) || `Failed to load (${res.status})`;
+          applicationRows.innerHTML = `<tr><td colspan="6" class="muted">${escapeHtml(msg)}</td></tr>`;
+          if (applicationStatusEl) applicationStatusEl.textContent = msg;
+          return;
+        }
+        const boardFilter = document.getElementById("applicationBoardFilter");
+        const catFilter = boardFilter && boardFilter.value ? Number(boardFilter.value) : null;
+        let topics = (json.topics || []).filter((t) => t.categoryId != null && APPLICATION_BOARD_IDS.includes(Number(t.categoryId)));
+        if (catFilter && Number.isFinite(catFilter)) {
+          topics = topics.filter((t) => Number(t.categoryId) === catFilter);
+        }
+        if (applicationStatusEl) applicationStatusEl.textContent = `${topics.length} application(s) in this board.`;
+        for (const t of topics) {
+          const tr = document.createElement("tr");
+          const status = (t.status || "open").toLowerCase();
+          tr.innerHTML = `
+            <td><a href="./topic.html?id=${encodeURIComponent(t.id)}"><strong>${escapeHtml(t.title || "")}</strong></a></td>
+            <td class="muted">${escapeHtml(t.categoryTitle || "")}</td>
+            <td><span class="appeal-status appeal-status-${escapeAttr(status)}">${escapeHtml(status)}</span></td>
+            <td class="muted">${t.replies}</td>
+            <td class="muted">${escapeHtml(new Date(t.createdAt).toLocaleDateString())}</td>
+            <td>
+              <div class="cta-row" style="gap:6px; flex-wrap:wrap">
+                <a class="btn primary" href="#" data-application-accept="${escapeAttr(t.id)}"><strong>Accept</strong></a>
+                <a class="btn red" href="#" data-application-deny="${escapeAttr(t.id)}"><strong>Deny</strong></a>
+                ${status !== "open" ? `<a class="btn" href="#" data-application-open="${escapeAttr(t.id)}"><strong>Reopen</strong></a>` : ""}
+              </div>
+            </td>
+          `;
+          applicationRows.appendChild(tr);
+        }
+        applicationRows.querySelectorAll("[data-application-accept]").forEach((a) => {
+          a.addEventListener("click", (e) => { e.preventDefault(); setApplicationStatus(a.getAttribute("data-application-accept"), "accepted"); });
+        });
+        applicationRows.querySelectorAll("[data-application-deny]").forEach((a) => {
+          a.addEventListener("click", (e) => { e.preventDefault(); setApplicationStatus(a.getAttribute("data-application-deny"), "denied"); });
+        });
+        applicationRows.querySelectorAll("[data-application-open]").forEach((a) => {
+          a.addEventListener("click", (e) => { e.preventDefault(); setApplicationStatus(a.getAttribute("data-application-open"), "open"); });
+        });
+      }
+
+      async function setApplicationStatus(topicId, status) {
+        if (!topicId) return;
+        if (applicationStatusEl) applicationStatusEl.textContent = "Updating…";
+        const res = await fetch(apiUrl(`/api/topics/${encodeURIComponent(topicId)}/status`), {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+          credentials: "same-origin",
+        });
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || !json.ok) {
+          if (applicationStatusEl) applicationStatusEl.textContent = (json && json.error) || `Update failed (${res.status})`;
+          return;
+        }
+        if (applicationStatusEl) applicationStatusEl.textContent = `Marked as ${status}.`;
+        loadApplications();
+      }
+
+      const applicationsRefreshBtn = document.getElementById("applicationsRefreshBtn");
+      if (applicationsRefreshBtn) applicationsRefreshBtn.addEventListener("click", loadApplications);
+      const applicationBoardFilter = document.getElementById("applicationBoardFilter");
+      if (applicationBoardFilter) applicationBoardFilter.addEventListener("change", loadApplications);
+
+      const onlineRows = document.getElementById("onlineRows");
+      const onlineStatusEl = document.getElementById("onlineStatus");
+
+      async function loadOnlineUsers() {
+        if (!onlineRows) return;
+        onlineRows.innerHTML = "";
+        if (onlineStatusEl) onlineStatusEl.textContent = "Loading…";
+        try {
+          const res = await fetch(apiUrl("/api/admin/online"), { credentials: "same-origin" });
+          const json = await res.json().catch(() => null);
+          if (!res.ok || !json || !json.ok) {
+            const msg = (json && json.error) || `Failed to load (${res.status}). Sign in as admin and use the same origin (e.g. run the server).`;
+            onlineRows.innerHTML = `<tr><td colspan="5" class="muted">${escapeHtml(msg)}</td></tr>`;
+            if (onlineStatusEl) onlineStatusEl.textContent = msg;
+            return;
+          }
+          const list = json.online || [];
+          if (onlineStatusEl) onlineStatusEl.textContent = list.length === 0 ? "No users online." : `${list.length} user(s) online.`;
+          if (list.length === 0) {
+            onlineRows.innerHTML = `<tr><td colspan="5" class="muted">No users currently online. Sessions appear here when users are signed in.</td></tr>`;
+          } else {
+            for (const u of list) {
+              const tr = document.createElement("tr");
+              const lastActive = u.lastActive ? new Date(u.lastActive).toLocaleString() : "—";
+              tr.innerHTML = `
+                <td><strong>${escapeHtml(u.username || "")}</strong></td>
+                <td class="muted">${escapeHtml(u.displayName || "")}</td>
+                <td>${escapeHtml(u.rankName || "—")}</td>
+                <td class="muted">${escapeHtml(lastActive)}</td>
+                <td><a class="btn" href="./profile.html?id=${encodeURIComponent(u.id || "")}">View</a></td>
+              `;
+              onlineRows.appendChild(tr);
+            }
+          }
+        } catch (err) {
+          onlineRows.innerHTML = `<tr><td colspan="5" class="muted">Could not load. Is the server running? Open admin from the same origin (e.g. http://localhost:3000/admin.html).</td></tr>`;
+          if (onlineStatusEl) onlineStatusEl.textContent = "Error loading.";
+        }
+      }
+
+      const onlineRefreshBtn = document.getElementById("onlineRefreshBtn");
+      if (onlineRefreshBtn) onlineRefreshBtn.addEventListener("click", loadOnlineUsers);
+
+      async function resolveReport(reportId, status, note) {
+        try {
+          const res = await fetch(apiUrl(`/api/admin/reports/${encodeURIComponent(reportId)}/resolve`), {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ status, note: (note || "").trim() }),
+          });
+          const json = await res.json();
+          if (res.ok && json.ok) loadReports();
+          else alert(json.error || "Failed to update report.");
+        } catch (e) {
+          alert("Request failed.");
+        }
+      }
+
+      async function loadReports() {
+        const reportRows = document.getElementById("reportRows");
+        const reportsStatus = document.getElementById("reportsStatus");
+        if (!reportRows) return;
+        try {
+          const res = await fetch(apiUrl("/api/admin/reports"), { credentials: "include" });
+          const json = await res.json();
+          if (!res.ok || !json.ok) {
+            reportRows.innerHTML = `<tr><td colspan="8" class="muted">Failed to load reports.</td></tr>`;
+            if (reportsStatus) reportsStatus.textContent = json.error || "Error";
+            return;
+          }
+          const list = json.reports || [];
+          if (reportsStatus) reportsStatus.textContent = list.length === 0 ? "No reports." : `${list.length} report(s).`;
+          if (list.length === 0) {
+            reportRows.innerHTML = `<tr><td colspan="8" class="muted">No reports yet.</td></tr>`;
+          } else {
+            reportRows.innerHTML = "";
+            for (const r of list) {
+              const tr = document.createElement("tr");
+              const date = r.createdAt ? new Date(r.createdAt).toLocaleString() : "—";
+              const statusText = (r.resolutionStatus || "pending").toLowerCase();
+              const statusLabel = statusText === "resolved" ? "Resolved" : statusText === "dismissed" ? "Dismissed" : "Pending";
+              const resolutionNote = (r.resolutionNote || "").slice(0, 80) + ((r.resolutionNote || "").length > 80 ? "…" : "");
+              const link = `<a href="./topic.html?id=${r.topicId}">Topic #${r.topicId}</a>`;
+              const isPending = statusText === "pending";
+              const resolveBtn = isPending ? `<button type="button" class="btn small primary" data-report-id="${escapeAttr(r.id)}" data-resolve-status="resolved">Resolve</button>` : "";
+              const dismissBtn = isPending ? `<button type="button" class="btn small" data-report-id="${escapeAttr(r.id)}" data-resolve-status="dismissed">Dismiss</button>` : "";
+              const noteInput = isPending ? `<input type="text" class="report-note-input" data-report-id="${escapeAttr(r.id)}" placeholder="Note (optional)" style="max-width:140px" />` : "";
+              tr.innerHTML = `
+                <td class="muted">${escapeHtml(date)}</td>
+                <td>${escapeHtml(r.reportedByName || r.reportedBy || "—")}</td>
+                <td>${escapeHtml(r.postType || "—")}</td>
+                <td class="muted">${r.postType === "reply" ? `Reply #${r.postId}` : "OP"}</td>
+                <td style="max-width:200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap" title="${escapeAttr((r.reason || "").slice(0, 200))}">${escapeHtml((r.reason || "").slice(0, 80))}${(r.reason || "").length > 80 ? "…" : ""}</td>
+                <td>${escapeHtml(statusLabel)}</td>
+                <td class="muted" style="max-width:160px; font-size:0.9em">${escapeHtml(resolutionNote) || "—"} ${noteInput}</td>
+                <td>${link} <span class="cta-row" style="margin-top:4px">${resolveBtn} ${dismissBtn}</span></td>
+              `;
+              reportRows.appendChild(tr);
+            }
+            reportRows.querySelectorAll("[data-resolve-status]").forEach((btn) => {
+              btn.addEventListener("click", () => {
+                const reportId = btn.dataset.reportId;
+                const status = btn.dataset.resolveStatus;
+                const row = btn.closest("tr");
+                const noteEl = row ? row.querySelector(".report-note-input") : null;
+                const note = noteEl ? noteEl.value : "";
+                resolveReport(reportId, status, note);
+              });
+            });
+          }
+        } catch (err) {
+          reportRows.innerHTML = `<tr><td colspan="8" class="muted">Could not load reports.</td></tr>`;
+          if (reportsStatus) reportsStatus.textContent = "Error.";
+        }
+      }
+
+      const reportsRefreshBtn = document.getElementById("reportsRefreshBtn");
+      if (reportsRefreshBtn) reportsRefreshBtn.addEventListener("click", loadReports);
+
+      function getSelectedTopicIds() {
+        return Array.from(document.querySelectorAll(".thread-cb:checked")).map((cb) => parseInt(cb.dataset.topicId, 10)).filter(Number.isFinite);
+      }
+      function updateBulkBar() {
+        const n = getSelectedTopicIds().length;
+        const bar = document.getElementById("bulkActionsBar");
+        const countEl = document.getElementById("bulkCount");
+        if (bar) bar.style.display = n ? "" : "none";
+        if (countEl) countEl.textContent = n;
+        const selectAll = document.getElementById("threadSelectAll");
+        if (selectAll && threadRows) {
+          const total = threadRows.querySelectorAll(".thread-cb").length;
+          selectAll.checked = total > 0 && n === total;
+        }
+      }
+      async function runBulkAction(action, forumId) {
+        const ids = getSelectedTopicIds();
+        if (ids.length === 0) return;
+        const bulkStatus = document.getElementById("bulkStatus");
+        bulkStatus.textContent = "Running…";
+        const body = { topicIds: ids, action };
+        if (action === "move" && forumId != null) body.forumId = forumId;
+        const res = await fetch(apiUrl("/api/admin/topics/bulk"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(body),
+        });
+        const json = await res.json().catch(() => null);
+        if (res.ok && json && json.ok) {
+          const r = json.results || {};
+          bulkStatus.textContent = `Done: ${r.done || 0} updated. ${r.failed || 0} failed.`;
+          threadRows.querySelectorAll(".thread-cb:checked").forEach((cb) => { cb.checked = false; });
+          updateBulkBar();
+          loadThreads();
+        } else {
+          bulkStatus.textContent = (json && json.error) || `Failed (${res.status})`;
+        }
+      }
+      document.getElementById("bulkLock")?.addEventListener("click", () => runBulkAction("lock"));
+      document.getElementById("bulkUnlock")?.addEventListener("click", () => runBulkAction("unlock"));
+      document.getElementById("bulkPin")?.addEventListener("click", () => runBulkAction("pin"));
+      document.getElementById("bulkUnpin")?.addEventListener("click", () => runBulkAction("unpin"));
+      document.getElementById("bulkDelete")?.addEventListener("click", async () => {
+        if (getSelectedTopicIds().length === 0) return;
+        if (!confirm("Permanently delete selected topics? This cannot be undone.")) return;
+        await runBulkAction("delete");
+      });
+      document.getElementById("bulkClear")?.addEventListener("click", () => {
+        threadRows.querySelectorAll(".thread-cb").forEach((cb) => { cb.checked = false; });
+        const selectAll = document.getElementById("threadSelectAll");
+        if (selectAll) selectAll.checked = false;
+        updateBulkBar();
+        document.getElementById("bulkStatus").textContent = "";
+      });
+      const bulkMoveOverlay = document.getElementById("bulkMoveOverlay");
+      const bulkMoveForum = document.getElementById("bulkMoveForum");
+      document.getElementById("bulkMove")?.addEventListener("click", async () => {
+        if (getSelectedTopicIds().length === 0) return;
+        if (!bulkMoveForum.options.length) {
+          const res = await fetch(apiUrl("/api/categories/flat"), { credentials: "include" });
+          const j = await res.json().catch(() => null);
+          if (j && j.ok && j.groups) {
+            bulkMoveForum.innerHTML = "";
+            for (const g of j.groups) {
+              for (const f of g.forums || []) {
+                const opt = document.createElement("option");
+                opt.value = f.id;
+                opt.textContent = `${g.title} → ${f.title}`;
+                bulkMoveForum.appendChild(opt);
+              }
+            }
+          }
+        }
+        bulkMoveOverlay.style.display = "flex";
+        bulkMoveOverlay.setAttribute("aria-hidden", "false");
+      });
+      document.getElementById("bulkMoveCancel")?.addEventListener("click", () => {
+        bulkMoveOverlay.style.display = "none";
+        bulkMoveOverlay.setAttribute("aria-hidden", "true");
+      });
+      document.getElementById("bulkMoveConfirm")?.addEventListener("click", async () => {
+        const forumId = parseInt(bulkMoveForum.value, 10);
+        if (!Number.isFinite(forumId)) return;
+        bulkMoveOverlay.style.display = "none";
+        await runBulkAction("move", forumId);
+      });
+
+      async function loadStats() {
+        const statsStatus = document.getElementById("statsStatus");
+        const statsGrid = document.getElementById("statsGrid");
+        const statsCharts = document.getElementById("statsCharts");
+        const statsCategories = document.getElementById("statsCategories");
+        if (!statsStatus) return;
+        try {
+          const res = await fetch(apiUrl("/api/admin/stats"), { credentials: "include" });
+          const json = await res.json();
+          if (!res.ok || !json.ok) {
+            statsStatus.textContent = (json && json.error) || "Failed to load stats.";
+            statsGrid.style.display = "none";
+            return;
+          }
+          const s = json.stats || {};
+          statsStatus.textContent = "";
+          statsGrid.style.display = "";
+          statsGrid.innerHTML = `
+            <div class="stat-card"><span class="stat-value">${s.topicsCount ?? 0}</span><span class="stat-label">Topics</span></div>
+            <div class="stat-card"><span class="stat-value">${s.repliesCount ?? 0}</span><span class="stat-label">Replies</span></div>
+            <div class="stat-card"><span class="stat-value">${s.usersCount ?? 0}</span><span class="stat-label">Users</span></div>
+            <div class="stat-card"><span class="stat-value">${s.onlineCount ?? 0}</span><span class="stat-label">Online now</span></div>
+          `;
+          const topics7 = s.topicsLast7Days || [];
+          const replies7 = s.repliesLast7Days || [];
+          if (topics7.length || replies7.length) {
+            statsCharts.style.display = "";
+            const maxVal = Math.max(1, ...topics7, ...replies7);
+            const days = ["6d ago", "5d", "4d", "3d", "2d", "Yesterday", "Today"];
+            statsCharts.innerHTML = `
+              <h3 style="margin:0 0 10px">Posts in the last 7 days</h3>
+              <div class="stats-bars">
+                ${(topics7.length ? topics7 : [0,0,0,0,0,0,0]).map((t, i) => `
+                  <div class="stats-bar-row">
+                    <span class="stats-bar-label">${days[i] || ""}</span>
+                    <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${maxVal ? (t / maxVal) * 100 : 0}%"></div></div>
+                    <span class="stats-bar-num">${t} topics</span>
+                  </div>
+                `).join("")}
+              </div>
+              <div class="stats-bars" style="margin-top:10px">
+                ${(replies7.length ? replies7 : [0,0,0,0,0,0,0]).map((r, i) => `
+                  <div class="stats-bar-row">
+                    <span class="stats-bar-label">${days[i] || ""}</span>
+                    <div class="stats-bar-track"><div class="stats-bar-fill replies" style="width:${maxVal ? (r / maxVal) * 100 : 0}%"></div></div>
+                    <span class="stats-bar-num">${r} replies</span>
+                  </div>
+                `).join("")}
+              </div>
+            `;
+          } else statsCharts.style.display = "none";
+          const byCat = s.byCategory || [];
+          if (byCat.length) {
+            statsCategories.style.display = "";
+            const catNames = {};
+            statsCategories.innerHTML = `
+              <h3 style="margin:0 0 10px">Top forums by post count</h3>
+              <ul class="list">
+                ${byCat.slice(0, 10).map((c) => `<li>Category ${escapeHtml(String(c.categoryId))}: ${escapeHtml(String(c.count))} posts</li>`).join("")}
+              </ul>
+            `;
+          } else statsCategories.style.display = "none";
+        } catch (err) {
+          statsStatus.textContent = "Error loading stats.";
+          statsGrid.style.display = "none";
+        }
+      }
+
+      async function loadAudit() {
+        const auditRows = document.getElementById("auditRows");
+        const auditStatus = document.getElementById("auditStatus");
+        if (!auditRows) return;
+        const params = new URLSearchParams();
+        params.set("limit", "150");
+        const actionEl = document.getElementById("auditFilterAction");
+        const userEl = document.getElementById("auditFilterUser");
+        const fromEl = document.getElementById("auditFilterFrom");
+        const toEl = document.getElementById("auditFilterTo");
+        if (actionEl && actionEl.value) params.set("action", actionEl.value);
+        if (userEl && userEl.value.trim()) params.set("username", userEl.value.trim());
+        if (fromEl && fromEl.value) params.set("from", fromEl.value);
+        if (toEl && toEl.value) params.set("to", toEl.value);
+        const qs = params.toString();
+        try {
+          const res = await fetch(apiUrl("/api/admin/audit" + (qs ? "?" + qs : "")), { credentials: "include" });
+          const json = await res.json();
+          if (!res.ok || !json.ok) {
+            auditRows.innerHTML = `<tr><td colspan="5" class="muted">Failed to load audit log.</td></tr>`;
+            if (auditStatus) auditStatus.textContent = json.error || "Error";
+            return;
+          }
+          const list = json.entries || [];
+          window.__lastAuditList = list;
+          if (auditStatus) auditStatus.textContent = list.length === 0 ? "No entries yet." : `Last ${list.length} actions.`;
+          if (list.length === 0) {
+            auditRows.innerHTML = `<tr><td colspan="5" class="muted">No audit entries yet. Pin, lock, move, or delete a topic to see entries.</td></tr>`;
+          } else {
+            auditRows.innerHTML = "";
+            for (const e of list) {
+              const tr = document.createElement("tr");
+              const at = e.at ? new Date(e.at).toLocaleString() : "—";
+              const details = e.details && typeof e.details === "object" ? JSON.stringify(e.details) : (e.details || "");
+              tr.innerHTML = `
+                <td class="muted">${escapeHtml(at)}</td>
+                <td>${escapeHtml(e.username || e.userId || "—")}</td>
+                <td>${escapeHtml(e.action || "—")}</td>
+                <td>${escapeHtml(e.targetType || "")} #${escapeHtml(String(e.targetId ?? ""))}</td>
+                <td class="muted" style="max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap" title="${escapeAttr(details)}">${escapeHtml(details.slice(0, 80))}${details.length > 80 ? "…" : ""}</td>
+              `;
+              auditRows.appendChild(tr);
+            }
+          }
+        } catch (err) {
+          auditRows.innerHTML = `<tr><td colspan="5" class="muted">Could not load audit log.</td></tr>`;
+          if (auditStatus) auditStatus.textContent = "Error.";
+        }
+      }
+
+      const statsRefreshBtn = document.getElementById("statsRefreshBtn");
+      if (statsRefreshBtn) statsRefreshBtn.addEventListener("click", loadStats);
+      const auditRefreshBtn = document.getElementById("auditRefreshBtn");
+      if (auditRefreshBtn) auditRefreshBtn.addEventListener("click", loadAudit);
+
+      async function loadWordfilter() {
+        const statusEl = document.getElementById("wordfilterStatus");
+        try {
+          const res = await fetch(apiUrl("/api/admin/wordfilter"), { credentials: "include" });
+          const json = await res.json();
+          if (!res.ok || !json || !json.ok) {
+            if (statusEl) statusEl.textContent = (json && json.error) || "Failed to load.";
+            return;
+          }
+          const wf = json.wordfilter || {};
+          const words = Array.isArray(wf.words) ? wf.words : [];
+          document.getElementById("wf_words").value = words.join("\n");
+          document.getElementById("wf_replacement").value = wf.replacement != null ? wf.replacement : "[removed]";
+          document.getElementById("wf_blockPost").checked = !!wf.blockPost;
+          if (statusEl) statusEl.textContent = "";
+        } catch (err) {
+          if (statusEl) statusEl.textContent = "Error loading.";
+        }
+      }
+      document.getElementById("wordfilterForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const statusEl = document.getElementById("wordfilterStatus");
+        const wordsText = document.getElementById("wf_words").value.trim();
+        const words = wordsText ? wordsText.split(/\n/).map((s) => s.trim()).filter(Boolean) : [];
+        const replacement = document.getElementById("wf_replacement").value.trim() || "[removed]";
+        const blockPost = document.getElementById("wf_blockPost").checked;
+        statusEl.textContent = "Saving…";
+        const res = await fetch(apiUrl("/api/admin/wordfilter"), {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ words, replacement, blockPost }),
+        });
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || !json.ok) {
+          statusEl.textContent = (json && json.error) || "Save failed.";
+          return;
+        }
+        statusEl.textContent = "Saved.";
+      });
+
+      // sidebar section switching
+      const sectionLinks = document.querySelectorAll("[data-section-link]");
+      const sections = document.querySelectorAll(".admin-section");
+      sectionLinks.forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const target = link.getAttribute("data-section-link");
+          sectionLinks.forEach((l) => l.classList.remove("active"));
+          link.classList.add("active");
+          sections.forEach((sec) => {
+            sec.classList.toggle("active", sec.getAttribute("data-admin-section") === target);
+          });
+          if (target === "threads") {
+            loadThreads();
+          } else if (target === "appeals") {
+            loadAppeals();
+          } else if (target === "applications") {
+            loadApplications();
+          } else if (target === "ranks") {
+            loadRanks();
+          } else if (target === "users") {
+            loadUsers();
+          } else if (target === "categories") {
+            loadCategories();
+          } else if (target === "online") {
+            loadOnlineUsers();
+          } else if (target === "reports") {
+            loadReports();
+          } else if (target === "stats") {
+            loadStats();
+          } else if (target === "audit") {
+            loadAudit();
+          } else if (target === "wordfilter") {
+            loadWordfilter();
+          } else if (target === "announcements") {
+            loadAnnouncementForm();
+          } else if (target === "theme") {
+            loadThemeForm();
+          } else if (target === "dashboard") {
+            updateDashboardAnnouncementPreview();
+          }
+        });
+      });
+
+      const ANNOUNCEMENT_KEY = "pny_announcement";
+      const ANNOUNCEMENT_LINK_KEY = "pny_announcement_link";
+      function toDatetimeLocal(iso) {
+        if (!iso) return "";
+        try {
+          const d = new Date(iso);
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          const h = String(d.getHours()).padStart(2, "0");
+          const min = String(d.getMinutes()).padStart(2, "0");
+          return `${y}-${m}-${day}T${h}:${min}`;
+        } catch { return ""; }
+      }
+      function loadAnnouncementForm() {
+        const statusEl = document.getElementById("announcementStatus");
+        if (statusEl) statusEl.textContent = "Loading…";
+        fetch("/api/admin/announcement", { credentials: "same-origin" })
+          .then((r) => r.json())
+          .then((j) => {
+            if (j && j.ok && j.announcement) {
+              const a = j.announcement;
+              document.getElementById("announcementText").value = a.text || "";
+              document.getElementById("announcementLink").value = a.link || "";
+              document.getElementById("announcementStartDate").value = toDatetimeLocal(a.startDate);
+              document.getElementById("announcementEndDate").value = toDatetimeLocal(a.endDate);
+            } else {
+              document.getElementById("announcementText").value = localStorage.getItem(ANNOUNCEMENT_KEY) || "";
+              document.getElementById("announcementLink").value = localStorage.getItem(ANNOUNCEMENT_LINK_KEY) || "";
+            }
+            if (statusEl) statusEl.textContent = "";
+          })
+          .catch(() => {
+            document.getElementById("announcementText").value = localStorage.getItem(ANNOUNCEMENT_KEY) || "";
+            document.getElementById("announcementLink").value = localStorage.getItem(ANNOUNCEMENT_LINK_KEY) || "";
+            if (statusEl) statusEl.textContent = "Using local fallback.";
+          });
+      }
+      function updateDashboardAnnouncementPreview() {
+        const el = document.getElementById("dashboardAnnouncementPreview");
+        if (!el) return;
+        fetch("/api/announcement", { credentials: "same-origin" })
+          .then((r) => r.json())
+          .then((j) => {
+            if (j && j.ok && j.announcement && j.announcement.text) {
+              el.textContent = j.announcement.text;
+              return;
+            }
+            const text = localStorage.getItem(ANNOUNCEMENT_KEY) || "";
+            el.textContent = text || "No announcement set. Add one in Settings → Announcements.";
+          })
+          .catch(() => {
+            const text = localStorage.getItem(ANNOUNCEMENT_KEY) || "";
+            el.textContent = text || "No announcement set. Add one in Settings → Announcements.";
+          });
+      }
+      document.getElementById("announcementForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const statusEl = document.getElementById("announcementStatus");
+        statusEl.textContent = "Saving…";
+        const text = document.getElementById("announcementText").value.trim();
+        const link = document.getElementById("announcementLink").value.trim();
+        const startDate = document.getElementById("announcementStartDate").value || null;
+        const endDate = document.getElementById("announcementEndDate").value || null;
+        const payload = { text, link, startDate, endDate };
+        fetch("/api/admin/announcement", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify(payload),
+        })
+          .then((r) => r.json())
+          .then((j) => {
+            if (j && j.ok) {
+              statusEl.textContent = "Saved. Banner shows when current time is within start/end (if set).";
+              updateDashboardAnnouncementPreview();
+            } else {
+              statusEl.textContent = (j && j.error) || "Save failed.";
+            }
+          })
+          .catch(() => { statusEl.textContent = "Network error."; });
+      });
+      document.getElementById("announcementClearBtn").addEventListener("click", () => {
+        document.getElementById("announcementText").value = "";
+        document.getElementById("announcementLink").value = "";
+        document.getElementById("announcementStartDate").value = "";
+        document.getElementById("announcementEndDate").value = "";
+        fetch("/api/admin/announcement", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ text: "", link: "", startDate: null, endDate: null }),
+        })
+          .then((r) => r.json())
+          .then((j) => {
+            document.getElementById("announcementStatus").textContent = (j && j.ok) ? "Cleared." : "Clear failed.";
+            updateDashboardAnnouncementPreview();
+          })
+          .catch(() => { document.getElementById("announcementStatus").textContent = "Clear failed."; });
+      });
+
+      function escapeCsvCell(s) {
+        const str = String(s == null ? "" : s);
+        if (/[\n",]/.test(str)) return '"' + str.replace(/"/g, '""') + '"';
+        return str;
+      }
+      document.getElementById("exportUsersCsvBtn").addEventListener("click", () => {
+        const list = allUsersList || [];
+        const headers = ["id", "username", "displayName", "rankId", "role", "warnings", "disabled", "createdAt"];
+        const rows = [headers.join(",")];
+        for (const u of list) {
+          rows.push(headers.map((h) => escapeCsvCell(u[h])).join(","));
+        }
+        const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "users-" + new Date().toISOString().slice(0, 10) + ".csv";
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+      document.getElementById("exportAuditCsvBtn").addEventListener("click", () => {
+        const list = window.__lastAuditList || [];
+        const headers = ["at", "username", "action", "targetType", "targetId", "details"];
+        const rows = [headers.join(",")];
+        for (const e of list) {
+          const details = e.details && typeof e.details === "object" ? JSON.stringify(e.details) : (e.details || "");
+          rows.push([
+            escapeCsvCell(e.at),
+            escapeCsvCell(e.username || e.userId),
+            escapeCsvCell(e.action),
+            escapeCsvCell(e.targetType),
+            escapeCsvCell(e.targetId),
+            escapeCsvCell(details),
+          ].join(","));
+        }
+        const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "audit-" + new Date().toISOString().slice(0, 10) + ".csv";
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      // --- Theme settings (localStorage + CSS variables) ---
+      const THEME_STORAGE_KEY = "pny_theme";
+      const themeDefaults = { primary: "#2f6fed", neutral: "#0e1012", danger: "#8B0000", customCss: "" };
+
+      function getStoredTheme() {
+        try {
+          const raw = localStorage.getItem(THEME_STORAGE_KEY);
+          if (!raw) return null;
+          const o = JSON.parse(raw);
+          return {
+            primary: (o && o.primary) || themeDefaults.primary,
+            neutral: (o && o.neutral) || themeDefaults.neutral,
+            danger: (o && o.danger) || themeDefaults.danger,
+            customCss: (o && o.customCss) || "",
+          };
+        } catch (_) { return null; }
+      }
+
+      function applyTheme(theme) {
+        if (!theme) theme = themeDefaults;
+        const r = document.documentElement;
+        r.style.setProperty("--blue", theme.primary || themeDefaults.primary);
+        r.style.setProperty("--bg", theme.neutral || themeDefaults.neutral);
+        r.style.setProperty("--panel", theme.neutral || themeDefaults.neutral);
+        r.style.setProperty("--red", theme.danger || themeDefaults.danger);
+
+        let el = document.getElementById("themeCustomCssStyle");
+        if (!el) {
+          el = document.createElement("style");
+          el.id = "themeCustomCssStyle";
+          document.head.appendChild(el);
+        }
+        el.textContent = theme.customCss || "";
+      }
+
+      function loadThemeForm() {
+        const t = getStoredTheme() || themeDefaults;
+        const primary = document.getElementById("themePrimary");
+        const neutral = document.getElementById("themeNeutral");
+        const danger = document.getElementById("themeDanger");
+        const customCss = document.getElementById("themeCustomCss");
+        if (primary) primary.value = t.primary;
+        if (neutral) neutral.value = t.neutral;
+        if (danger) danger.value = t.danger;
+        if (customCss) customCss.value = t.customCss;
+      }
+
+      document.getElementById("themeForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const themeStatus = document.getElementById("themeStatus");
+        const theme = {
+          primary: (document.getElementById("themePrimary").value || "").trim() || themeDefaults.primary,
+          neutral: (document.getElementById("themeNeutral").value || "").trim() || themeDefaults.neutral,
+          danger: (document.getElementById("themeDanger").value || "").trim() || themeDefaults.danger,
+          customCss: (document.getElementById("themeCustomCss").value || "").trim(),
+        };
+        try {
+          localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(theme));
+          applyTheme(theme);
+          themeStatus.textContent = "Theme saved. It will persist across pages.";
+        } catch (err) {
+          themeStatus.textContent = "Could not save (e.g. private browsing).";
+        }
+      });
+
+      document.getElementById("themeResetBtn").addEventListener("click", () => {
+        try {
+          localStorage.removeItem(THEME_STORAGE_KEY);
+          applyTheme(themeDefaults);
+          loadThemeForm();
+          document.getElementById("themeStatus").textContent = "Theme reset to default.";
+        } catch (_) {}
+      });
+
+      // Apply stored theme on load (so whole site uses it)
+      (function initTheme() {
+        const t = getStoredTheme();
+        if (t) applyTheme(t);
+      })();
+
+      // initial loads
+      loadUsers();
+      loadCategories();
+      loadRanks();
+      loadModDashboard();
+      updateDashboardAnnouncementPreview();
+    </script>
+  </body>
+</html>
+

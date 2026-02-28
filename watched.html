@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Watched Topics</title>
+    <meta name="description" content="Your watched topics for Project New York." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+                <a data-nav href="./watched.html">Watched</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section" data-require-auth="1">
+      <div class="container">
+        <div class="card panel">
+          <h2>Watched Topics</h2>
+          <p class="muted">Topics you're watching. Unwatch to remove from this list.</p>
+          <div class="cta-row" style="margin-top:10px">
+            <a class="btn" href="./forums.html"><strong>Forums</strong></a>
+          </div>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div class="card panel" style="padding:0; overflow:hidden">
+          <table class="forum-table" aria-label="Watched topics">
+            <thead>
+              <tr>
+                <th style="width:50%">Topic</th>
+                <th style="width:20%">Forum</th>
+                <th style="width:20%">Created</th>
+                <th style="width:10%">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Watched topics.</p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./apply.html">Staff Application</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      }
+
+      fetch("/api/me/watched", { credentials: "include" })
+        .then((r) => r.json())
+        .then((j) => {
+          const rows = document.getElementById("rows");
+          if (!j || !j.ok || !Array.isArray(j.topics) || j.topics.length === 0) {
+            rows.innerHTML = `<tr><td colspan="4" class="muted" style="padding:14px">No watched topics. Use “Watch” on a topic page to add it here.</td></tr>`;
+            return;
+          }
+          for (const t of j.topics) {
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-topic-id", t.id);
+            const when = new Date(t.createdAt).toLocaleString();
+            const author = (t.author && (t.author.displayName || t.author.username)) || "Unknown";
+            const pinned = t.pinnedAt ? `<img class="icon" alt="Pinned" src="./assets/icons/pin.svg" /> ` : "";
+            const locked = t.lockedAt ? `<img class="icon" alt="Locked" src="./assets/icons/lock.svg" /> ` : "";
+            tr.innerHTML =
+              `<td><a href="./topic.html?id=${t.id}" style="text-decoration:none"><strong>${pinned}${locked}${escapeHtml(t.title)}</strong></a><div class="muted">By ${escapeHtml(author)}</div></td>` +
+              `<td class="muted">${escapeHtml(t.categoryTitle || "")}</td>` +
+              `<td class="muted">${escapeHtml(when)}</td>` +
+              `<td><button type="button" class="btn unwatch-btn" data-topic-id="${t.id}">Unwatch</button></td>`;
+            rows.appendChild(tr);
+          }
+          rows.querySelectorAll(".unwatch-btn").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const topicId = btn.dataset.topicId;
+              const res = await fetch(`/api/topics/${topicId}/watch`, { method: "POST", credentials: "include" });
+              const json = await res.json().catch(() => null);
+              if (json && json.ok) {
+                const row = btn.closest("tr");
+                if (row) row.remove();
+                if (rows.querySelectorAll("tr").length === 0) {
+                  rows.innerHTML = `<tr><td colspan="4" class="muted" style="padding:14px">No watched topics.</td></tr>`;
+                }
+              }
+            });
+          });
+        })
+        .catch(() => {
+          document.getElementById("rows").innerHTML = `<tr><td colspan="4" class="muted" style="padding:14px">Failed to load.</td></tr>`;
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Staff</title>
+    <meta name="description" content="Project New York staff roster preview: owner, admins, moderators, event staff." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="card panel">
+          <h2>Staff</h2>
+          <p class="muted">Forum staff and moderators. Contact them for reports, appeals, or community support.</p>
+          <div class="cta-row" style="margin-top:10px">
+            <a class="btn" href="./tickets-staff.html"><strong>In-game tickets</strong></a>
+            <a class="btn" href="./bans-staff.html"><strong>Staff bans</strong></a>
+          </div>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div id="staffRoster" class="grid-3">
+          <p class="muted" id="staffStatus">Loading staff…</p>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div class="two-col">
+          <div class="card panel">
+            <h2>Contact</h2>
+            <p class="muted">
+              For urgent issues, open a report in Discord. For bans/warnings, use the appeals form so we can review evidence.
+            </p>
+            <div class="cta-row" style="margin-top:10px">
+              <a class="btn red" href="./appeal.html"><strong>Appeal</strong></a>
+              <a class="btn" href="./forums.html"><strong>Reports</strong></a>
+              <a class="btn" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer"><strong>Discord</strong></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Staff page preview: owner, admins, moderators, and event staff.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./index.html">Home</a>
+              <a href="./forums.html">Forums</a>
+              <a href="./server.html">Server</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      (function () {
+        const roster = document.getElementById("staffRoster");
+        const status = document.getElementById("staffStatus");
+
+        function escapeHtml(s) {
+          return String(s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+          });
+        }
+
+        var apiUrl = (function () {
+          var loc = window.location;
+          if (loc.protocol === "file:") return null;
+          try {
+            return new URL("api/staff", loc.href).href;
+          } catch (e) {
+            return loc.origin + "/api/staff";
+          }
+        })();
+        if (!apiUrl) {
+          status.textContent = "Open this page through your server (e.g. http://localhost:3000/staff.html) to load the staff list.";
+          status.setAttribute("style", "max-width:24em;");
+          return;
+        }
+        fetch(apiUrl)
+          .then(function (res) {
+            return res.json().then(function (json) {
+              return { res: res, json: json };
+            }).catch(function () {
+              return { res: res, json: null };
+            });
+          })
+          .then(function (out) {
+            var res = out.res;
+            var json = out.json;
+            if (!res.ok) {
+              status.textContent = "Server error (" + res.status + "). Make sure the server is running.";
+              return;
+            }
+            if (!json || !json.ok || !Array.isArray(json.staff)) {
+              status.textContent = (json && json.error) ? json.error : "Could not load staff list.";
+              return;
+            }
+            if (json.staff.length === 0) {
+              status.textContent = "No staff members yet.";
+              return;
+            }
+            status.remove();
+            var byRank = {};
+            json.staff.forEach(function (s) {
+              var name = s.rankName || "Staff";
+              if (!byRank[name]) byRank[name] = [];
+              byRank[name].push(s);
+            });
+            var order = ["Administrator", "Admin", "Moderator", "Staff", "Event / Story Team"];
+            Object.keys(byRank).sort(function (a, b) {
+              var i = order.indexOf(a);
+              var j = order.indexOf(b);
+              if (i !== -1 && j !== -1) return i - j;
+              if (i !== -1) return -1;
+              if (j !== -1) return 1;
+              return a.localeCompare(b);
+            }).forEach(function (rankName) {
+              var card = document.createElement("div");
+              card.className = "card panel";
+              var title = document.createElement("h2");
+              title.textContent = rankName;
+              card.appendChild(title);
+              var list = document.createElement("ul");
+              list.className = "list";
+              byRank[rankName].forEach(function (s) {
+                var li = document.createElement("li");
+                li.innerHTML = "<strong>" + escapeHtml(s.displayName || s.username) + "</strong> — " + escapeHtml(rankName);
+                list.appendChild(li);
+              });
+              card.appendChild(list);
+              roster.appendChild(card);
+            });
+          })
+          .catch(function () {
+            status.textContent = "Could not reach the server. Open this page at http://localhost:3000/staff.html (with the server running).";
+          });
+      })();
+    </script>
+  </body>
+</html>
+

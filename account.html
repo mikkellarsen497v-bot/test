@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Account</title>
+    <meta name="description" content="Account page for Project New York." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section" data-require-auth="1">
+      <div class="container">
+        <div class="card panel">
+          <h2>Account</h2>
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap">
+            <div class="avatar" id="accountAvatar" style="width:48px; height:48px; border-radius:12px; font-size:16px; background-size:cover; background-position:center">?</div>
+            <p class="muted" id="meLine" style="margin:0">Loading…</p>
+          </div>
+          <div class="cta-row" style="margin-top:10px">
+            <a class="btn primary" href="./create-topic.html"><strong>Create New Topic</strong></a>
+            <a class="btn" href="./topics.html?cat=applications-staff"><strong>Staff Applications</strong></a>
+            <a class="btn red" href="./topics.html?cat=appeals"><strong>Appeals</strong></a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Account page.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./apply.html">Staff Application</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+      fetch("/api/me")
+        .then((r) => r.json())
+        .then((j) => {
+          const el = document.getElementById("meLine");
+          const avatarEl = document.getElementById("accountAvatar");
+          if (!j || !j.ok || !j.user) {
+            el.textContent = "Not signed in.";
+            return;
+          }
+          el.textContent = `Signed in as ${j.user.displayName || j.user.username} (${j.user.role}).`;
+          const avatarUrl = (j.user.avatarUrl || localStorage.getItem("pny_avatarUrl") || "").trim();
+          if (avatarUrl && (avatarUrl.startsWith("http") || avatarUrl.startsWith("data:"))) {
+            avatarEl.style.backgroundImage = `url(${avatarUrl})`;
+            avatarEl.textContent = "";
+          } else {
+            const name = j.user.displayName || j.user.username;
+            avatarEl.textContent = name.trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join("").toUpperCase().slice(0, 2) || "?";
+          }
+        })
+        .catch(() => {});
+    </script>
+  </body>
+</html>
+

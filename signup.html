@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Sign Up</title>
+    <meta name="description" content="Create an account for Project New York." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="card panel">
+          <h2>Sign Up</h2>
+          <p class="muted">Create an account to post topics and submit forms.</p>
+
+          <form id="signupForm" style="margin-top:12px">
+            <div class="form-grid">
+              <div>
+                <label for="username">Username</label>
+                <input id="username" name="username" autocomplete="username" required placeholder="letters/numbers/_ (3–20)" />
+              </div>
+              <div>
+                <label for="displayName">Display name</label>
+                <input id="displayName" name="displayName" autocomplete="nickname" placeholder="Shown on posts" />
+              </div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div class="form-grid">
+              <div>
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" autocomplete="new-password" required />
+              </div>
+              <div>
+                <label for="password2">Confirm password</label>
+                <input id="password2" name="password2" type="password" autocomplete="new-password" required />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn primary" type="submit"><strong>Create account</strong></button>
+              <a class="btn" href="./signin.html"><strong>Already have an account?</strong></a>
+            </div>
+            <p class="note" id="signupStatus" style="margin-top:12px"> </p>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Sign up.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./apply.html">Staff Application</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+      const params = new URLSearchParams(location.search);
+      const next = params.get("next") || "index.html";
+
+      document.getElementById("signupForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const status = document.getElementById("signupStatus");
+        status.textContent = "Creating account…";
+
+        const password = document.getElementById("password").value;
+        const password2 = document.getElementById("password2").value;
+        if (password !== password2) {
+          status.textContent = "Passwords do not match.";
+          return;
+        }
+
+        const payload = {
+          username: document.getElementById("username").value,
+          displayName: document.getElementById("displayName").value,
+          password,
+        };
+
+        try {
+          const res = await fetch("/api/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const json = await res.json().catch(() => null);
+          if (!res.ok || !json || !json.ok) {
+            status.textContent = (json && json.error) || `Sign up failed (${res.status})`;
+            return;
+          }
+          location.href = `./${next}`;
+        } catch {
+          status.textContent = "Network error. Is the site server running?";
+        }
+      });
+    </script>
+  </body>
+</html>
+

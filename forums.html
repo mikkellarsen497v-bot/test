@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Forums</title>
+    <meta name="description" content="Project New York forums: announcements, territories, applications, reports, appeals, suggestions." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+                <a data-nav href="./watched.html">Watched</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="layout">
+          <div>
+            <div class="card panel">
+              <h2>Forums</h2>
+              <p class="muted">
+                PRN-style layout: collapsible categories, subforums with counts, and latest-post previews.
+              </p>
+            </div>
+
+            <div style="height:14px"></div>
+
+            <div id="groups" class="forum-groups" aria-label="Forum categories"></div>
+
+            <div style="height:14px"></div>
+
+            <div class="card panel">
+              <h2>Quick Actions</h2>
+              <div class="cta-row" style="margin-top:10px; flex-wrap:wrap; gap:8px">
+                <a class="btn primary" href="./create-topic.html"><strong>Create New Topic</strong></a>
+                <a class="btn" href="./apply.html"><strong>Staff Application</strong></a>
+                <a class="btn red" href="./appeal.html"><strong>Submit Appeal</strong></a>
+                <button type="button" class="btn" id="markAllReadBtn" style="display:none"><strong>Mark all as read</strong></button>
+              </div>
+              <p class="note" style="margin-top:12px">You must be signed in to post in most sections.</p>
+            </div>
+          </div>
+
+          <aside class="sidebar" aria-label="Community sidebar">
+            <div class="card panel">
+              <h2>Our servers</h2>
+              <ul class="side-list" style="margin-top:10px">
+                <li class="side-item">
+                  <div class="title"><strong>Garry’s Mod</strong><span class="badge ok" data-server-badge aria-live="polite">Online</span></div>
+                <div class="meta"><span class="mono">193.243.190.19:27015</span> • <span data-server-players>42 / 128</span></div>
+                  <div class="meta">Map <span class="mono" data-server-map>—</span></div>
+                </li>
+                <li class="side-item">
+                  <div class="title"><strong>Discord</strong><span class="badge">Members</span></div>
+                  <div class="meta"><a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">discord.gg/qBejzcjt</a></div>
+                  <div class="meta"><span data-discord-count>— online</span></div>
+                </li>
+              </ul>
+            </div>
+
+            <div style="height:14px"></div>
+
+            <div class="card panel">
+              <h2>Who’s Online</h2>
+              <p class="muted" style="margin-top:8px" id="whosOnline">— Members, — Anonymous, — Guests</p>
+            </div>
+
+            <div style="height:14px"></div>
+
+            <div class="card panel" id="forumStatsPanel">
+              <h2>Forum Statistics</h2>
+              <ul class="side-list" style="margin-top:10px" id="forumStatsList">
+                <li class="side-item"><div class="title"><strong>Total Topics</strong><span class="mono" id="statTopics">—</span></div></li>
+                <li class="side-item"><div class="title"><strong>Total Posts</strong><span class="mono" id="statPosts">—</span></div></li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Forums preview: categories, access rules, and quick actions.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./index.html">Home</a>
+              <a href="./apply.html">Applications</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      (function () {
+        const el = document.getElementById("whosOnline");
+        if (!el) return;
+        fetch("/api/online", { credentials: "same-origin" })
+          .then((r) => r.ok ? r.json() : null)
+          .then((data) => {
+            if (data && data.ok) {
+              el.textContent = `${data.members ?? 0} Members, ${data.anonymous ?? 0} Anonymous, ${data.guests ?? 0} Guests`;
+            }
+          })
+          .catch(() => {});
+      })();
+
+      (function () {
+        document.querySelectorAll("[data-discord-count]").forEach((el) => {
+          fetch("/api/discord-stats", { credentials: "same-origin" })
+            .then((r) => r.ok ? r.json() : null)
+            .then((data) => {
+              if (data && data.ok && typeof data.online === "number" && typeof data.members === "number") {
+                el.textContent = `${data.online} / ${data.members} online`;
+              }
+            })
+            .catch(() => {});
+        });
+      })();
+
+      const groupsEl = document.getElementById("groups");
+
+      const escapeHtml = (s) =>
+        String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+      const iconSvg = () => `
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none" aria-hidden="true">
+          <path d="M2 4.5C2 3.67 2.67 3 3.5 3H7.2C7.63 3 8.04 3.17 8.34 3.47L9.2 4.33C9.5 4.63 9.91 4.8 10.33 4.8H16.5C17.33 4.8 18 5.47 18 6.3V12.5C18 13.33 17.33 14 16.5 14H3.5C2.67 14 2 13.33 2 12.5V4.5Z" stroke="rgba(168,176,184,.95)" stroke-width="1.2"/>
+        </svg>`;
+
+      const chipKindFromTitle = (title) => {
+        const t = String(title || "").toLowerCase();
+        if (t.includes("accept")) return "good";
+        if (t.includes("deny")) return "bad";
+        if (t.includes("valid") || t.includes("solved") || t.includes("documented")) return "good";
+        if (t.includes("invalid")) return "bad";
+        return "neutral";
+      };
+
+      const avatarText = (author) => {
+        const name = (author && (author.displayName || author.username)) || "?";
+        const parts = String(name).trim().split(/\s+/).slice(0, 2);
+        return parts.map((p) => p[0]).join("").toUpperCase().slice(0, 2) || "?";
+      };
+
+      const timeText = (iso) => {
+        if (!iso) return "";
+        try {
+          return new Date(iso).toLocaleString();
+        } catch {
+          return String(iso);
+        }
+      };
+
+      const render = (groups) => {
+        groupsEl.innerHTML = "";
+        for (const g of groups) {
+          const details = document.createElement("details");
+          details.className = "forum-group";
+          details.open = true;
+          details.innerHTML = `
+            <summary>
+              <div class="forum-group-title">${escapeHtml(g.title)}</div>
+              <div class="forum-group-caret">˅</div>
+            </summary>
+            <div class="forum-group-body"></div>
+          `;
+          const body = details.querySelector(".forum-group-body");
+
+          for (const f of g.forums) {
+            const chips = (f.statuses || []).map((s) => {
+              const kind = chipKindFromTitle(s.title);
+              let label = s.title;
+              const t = String(s.title || "").toLowerCase();
+              if (t === "accepted") label = "Accepted";
+              else if (t === "denied") label = "Denied";
+              return {
+                href: `./topics.html?cat=${encodeURIComponent(s.id)}`,
+                label,
+                kind,
+              };
+            });
+            const chipsHtml =
+              chips.length > 0
+                ? `<div class="forum-chips">${chips
+                    .map((c) => `<a class="chip ${c.kind}" href="${c.href}">${escapeHtml(c.label)}</a>`)
+                    .join("")}</div>`
+                : "";
+
+            const latest = f.latestTopic;
+            const latestTitle = latest ? latest.title : "No posts here yet";
+            const latestLink = latest ? `./topic.html?id=${encodeURIComponent(latest.id)}` : `./topics.html?cat=${encodeURIComponent(f.id)}`;
+            const author = latest && latest.author ? (latest.author.displayName || latest.author.username) : "—";
+            const when = latest ? timeText(latest.createdAt) : "";
+
+            const row = document.createElement("div");
+            row.className = "forum-row";
+            const authorAvatarUrl = latest && latest.author && latest.author.avatarUrl;
+            row.innerHTML = `
+              <div class="forum-icon">${iconSvg()}</div>
+              <div class="forum-main">
+                <div class="forum-title">
+                  <a href="./topics.html?cat=${encodeURIComponent(f.id)}">${escapeHtml(f.title)}</a>
+                </div>
+                <div class="forum-desc">${escapeHtml(f.description || "")}</div>
+                ${chipsHtml}
+              </div>
+              <div class="forum-count" aria-label="Topic count">
+                <div class="count-pill">
+                  <span style="opacity:.9" aria-hidden="true">💬</span>
+                  <span>${escapeHtml(String(f.topicsCount || 0))}</span>
+                </div>
+              </div>
+              <div class="forum-latest" aria-label="Latest post">
+                <div class="avatar">${escapeHtml(avatarText(latest && latest.author))}</div>
+                <div class="latest-meta">
+                  <div class="latest-title"><a href="${latestLink}" style="text-decoration:none">${escapeHtml(latestTitle)}</a></div>
+                  <div class="latest-sub">By ${escapeHtml(author)}${when ? `, ${escapeHtml(when)}` : ""}</div>
+                </div>
+              </div>
+            `;
+            if (authorAvatarUrl && (authorAvatarUrl.startsWith("http") || authorAvatarUrl.startsWith("data:"))) {
+              const av = row.querySelector(".avatar");
+              av.style.backgroundImage = "url(" + JSON.stringify(authorAvatarUrl) + ")";
+              av.style.backgroundSize = "cover";
+              av.style.backgroundPosition = "center";
+              av.textContent = "";
+            }
+            body.appendChild(row);
+          }
+
+          groupsEl.appendChild(details);
+        }
+      };
+
+      groupsEl.innerHTML = `<div class="card panel"><p class="muted">Loading…</p></div>`;
+
+      (function () {
+        const markAllReadBtn = document.getElementById("markAllReadBtn");
+        if (!markAllReadBtn) return;
+        fetch("/api/me", { credentials: "same-origin" })
+          .then((r) => r.json())
+          .then((j) => {
+            if (j && j.ok && j.user) {
+              markAllReadBtn.style.display = "";
+              markAllReadBtn.addEventListener("click", () => {
+                markAllReadBtn.disabled = true;
+                fetch("/api/me/mark-all-read", { method: "POST", credentials: "same-origin" })
+                  .then((res) => res.json())
+                  .then((data) => {
+                    if (data && data.ok) markAllReadBtn.textContent = "Marked all as read";
+                  })
+                  .finally(() => { markAllReadBtn.disabled = false; });
+              });
+            }
+          })
+          .catch(() => {});
+      })();
+
+      function formatStat(n) {
+        if (typeof n !== "number" || !Number.isFinite(n)) return "—";
+        if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+        if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+        return String(n);
+      }
+
+      const apiUrl = (window.API_BASE || "") + "/api/forum-index";
+      fetch(apiUrl, { credentials: "include" })
+        .then((r) => {
+          if (!r.ok) {
+            const err = new Error("bad");
+            err.status = r.status;
+            throw err;
+          }
+          return r.json();
+        })
+        .then((j) => {
+          if (!j || !j.ok) throw new Error("bad");
+          render(j.groups || []);
+          const stats = j.stats;
+          const topicsEl = document.getElementById("statTopics");
+          const postsEl = document.getElementById("statPosts");
+          if (stats && topicsEl) topicsEl.textContent = formatStat(stats.totalTopics);
+          if (stats && postsEl) postsEl.textContent = formatStat(stats.totalPosts ?? (stats.totalTopics ?? 0) + (stats.totalReplies ?? 0));
+        })
+        .catch((err) => {
+          const isLikelyStaticHost = !window.API_BASE && location.hostname !== "localhost" && !location.hostname.endsWith(".local");
+          const is404 = err && (err.status === 404 || err.status === 0);
+          if (isLikelyStaticHost && is404) {
+            groupsEl.innerHTML = `<div class="card panel"><p class="muted">Forum index could not be loaded. On static hosting (e.g. InfinityFree), set <code>window.API_BASE = "https://your-api.onrender.com"</code> in <code>api-config.js</code> so the forum calls your Node API.</p></div>`;
+          } else {
+            groupsEl.innerHTML = `<div class="card panel"><p class="muted">Failed to load forum index.</p></div>`;
+          }
+        });
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Settings</title>
+    <meta name="description" content="Profile and appearance settings for Project New York." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section" data-require-auth="1">
+      <div class="container" style="max-width:none; padding:0">
+        <div class="settings-shell">
+          <aside class="settings-sidebar">
+            <div class="settings-nav-section">
+              <h2>Settings</h2>
+              <ul class="settings-nav">
+                <li><a href="#" data-settings-link="avatar" class="active"><span>Profile Avatar</span></a></li>
+                <li><a href="#" data-settings-link="postbit"><span>Postbit Cover</span></a></li>
+                <li><a href="#" data-settings-link="cover"><span>Cover Photo</span></a></li>
+                <li><a href="#" data-settings-link="custom"><span>Profile Customizations</span></a></li>
+              </ul>
+            </div>
+          </aside>
+
+          <div class="settings-main">
+            <section class="settings-section active" data-settings-section="avatar">
+              <div class="card panel">
+                <h2>Profile Avatar</h2>
+                <p class="muted">Your avatar appears on your profile and next to your posts. Recommended: square image, at least 128×128 px.</p>
+                <div style="margin-top:16px; display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap">
+                  <div class="avatar settings-avatar-preview" id="avatarPreview" style="width:80px; height:80px; border-radius:16px; font-size:24px; background:var(--panel2); border:2px solid var(--line)">?</div>
+                  <div style="flex:1; min-width:200px">
+                    <label for="avatarUrl">Image URL</label>
+                    <input id="avatarUrl" type="url" placeholder="https://…" style="margin-top:6px" />
+                    <p class="note" style="margin-top:8px">Or upload an image (requires server support).</p>
+                    <input type="file" id="avatarFile" accept="image/*" style="margin-top:6px" />
+                    <div class="form-actions" style="margin-top:14px">
+                      <button type="button" class="btn primary" id="avatarSave"><strong>Save avatar</strong></button>
+                    </div>
+                    <p class="note" id="avatarStatus" style="margin-top:10px"></p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-section" data-settings-section="postbit">
+              <div class="card panel">
+                <h2>Postbit Cover</h2>
+                <p class="muted">Optional image or background shown in your postbit (the strip next to your posts in threads).</p>
+                <div style="margin-top:16px">
+                  <label for="postbitUrl">Cover image URL</label>
+                  <input id="postbitUrl" type="url" placeholder="https://…" style="margin-top:6px; width:100%; max-width:400px" />
+                  <div style="margin-top:12px; width:100%; max-width:320px; height:80px; background:var(--panel2); border:1px solid var(--line); border-radius:var(--radius2); overflow:hidden" id="postbitPreview">
+                    <div class="muted" style="padding:12px; font-size:13px">Preview</div>
+                  </div>
+                  <div class="form-actions" style="margin-top:14px">
+                    <button type="button" class="btn primary" id="postbitSave"><strong>Save postbit cover</strong></button>
+                  </div>
+                  <p class="note" id="postbitStatus" style="margin-top:10px"></p>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-section" data-settings-section="cover">
+              <div class="card panel">
+                <h2>Cover Photo</h2>
+                <p class="muted">The banner at the top of your profile page. Recommended: about 1200×300 px or similar wide aspect.</p>
+                <div style="margin-top:16px">
+                  <label for="coverUrl">Cover image URL</label>
+                  <input id="coverUrl" type="url" placeholder="https://…" style="margin-top:6px; width:100%; max-width:400px" />
+                  <div style="margin-top:12px; width:100%; max-width:400px; height:100px; background:var(--panel2); border:1px solid var(--line); border-radius:var(--radius2); overflow:hidden; background-size:cover; background-position:center" id="coverPreview"></div>
+                  <div class="form-actions" style="margin-top:14px">
+                    <button type="button" class="btn primary" id="coverSave"><strong>Save cover photo</strong></button>
+                  </div>
+                  <p class="note" id="coverStatus" style="margin-top:10px"></p>
+                </div>
+              </div>
+            </section>
+
+            <section class="settings-section" data-settings-section="custom">
+              <div class="card panel">
+                <h2>Profile Customizations</h2>
+                <p class="muted">Optional text and preferences shown on your profile.</p>
+                <form id="customForm" style="margin-top:16px">
+                  <div class="form-grid">
+                    <div>
+                      <label for="profileTitle">Profile title</label>
+                      <input id="profileTitle" type="text" placeholder="e.g. Resistance Operative" />
+                    </div>
+                    <div>
+                      <label for="profileColor">Accent color (hex)</label>
+                      <input id="profileColor" type="text" placeholder="#C2B280" maxlength="7" />
+                    </div>
+                  </div>
+                  <div style="height:12px"></div>
+                  <div>
+                    <label for="profileBio">Bio / About</label>
+                    <textarea id="profileBio" rows="4" placeholder="A short bio shown on your profile…" style="width:100%; max-width:500px; resize:vertical"></textarea>
+                  </div>
+                  <div class="form-actions" style="margin-top:14px">
+                    <button type="submit" class="btn primary"><strong>Save customizations</strong></button>
+                  </div>
+                  <p class="note" id="customStatus" style="margin-top:10px"></p>
+                </form>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Settings.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./account.html">Account</a>
+              <a href="./apply.html">Staff Application</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      // Settings tabs
+      document.querySelectorAll("[data-settings-link]").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const target = link.getAttribute("data-settings-link");
+          document.querySelectorAll("[data-settings-link]").forEach((a) => a.classList.remove("active"));
+          document.querySelectorAll("[data-settings-section]").forEach((s) => s.classList.remove("active"));
+          link.classList.add("active");
+          const section = document.querySelector(`[data-settings-section="${target}"]`);
+          if (section) section.classList.add("active");
+        });
+      });
+
+      function loadSettings() {
+        const fromStorage = () => {
+          document.getElementById("avatarUrl").value = localStorage.getItem("pny_avatarUrl") || "";
+          document.getElementById("postbitUrl").value = localStorage.getItem("pny_postbitUrl") || "";
+          document.getElementById("coverUrl").value = localStorage.getItem("pny_coverUrl") || "";
+          document.getElementById("profileTitle").value = localStorage.getItem("pny_profileTitle") || "";
+          document.getElementById("profileColor").value = localStorage.getItem("pny_profileColor") || "";
+          document.getElementById("profileBio").value = localStorage.getItem("pny_profileBio") || "";
+          const a = document.getElementById("avatarUrl").value;
+          const p = document.getElementById("postbitUrl").value;
+          const c = document.getElementById("coverUrl").value;
+          updateAvatarPreview(a);
+          updatePostbitPreview(p);
+          updateCoverPreview(c);
+        };
+        fetch("/api/me", { headers: { Accept: "application/json" } })
+          .then((r) => r.json())
+          .then((j) => {
+            if (j && j.ok && j.user) {
+              const u = j.user;
+              document.getElementById("avatarUrl").value = u.avatarUrl || "";
+              document.getElementById("postbitUrl").value = u.postbitCoverUrl || "";
+              document.getElementById("coverUrl").value = u.coverUrl || "";
+              document.getElementById("profileTitle").value = u.profileTitle || "";
+              document.getElementById("profileColor").value = u.profileColor || "";
+              document.getElementById("profileBio").value = u.profileBio || "";
+              updateAvatarPreview(u.avatarUrl || "");
+              updatePostbitPreview(u.postbitCoverUrl || "");
+              updateCoverPreview(u.coverUrl || "");
+            } else fromStorage();
+          })
+          .catch(fromStorage);
+      }
+
+      function saveProfilePatch(body, statusId, successMsg) {
+        const el = document.getElementById(statusId);
+        el.textContent = "Saving…";
+        fetch("/api/me/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          credentials: "same-origin",
+        })
+          .then((r) => {
+            if (r.status === 413) {
+              el.textContent = "Image too large. Use a smaller image or paste an image URL instead.";
+              return null;
+            }
+            if (r.status === 401) {
+              el.textContent = "Please sign in again, then save.";
+              return null;
+            }
+            return r.json().then((j) => ({ r, j })).catch(() => ({ r, j: { error: "Invalid response" } }));
+          })
+          .then((out) => {
+            if (!out) return;
+            const { r, j } = out;
+            if (r.ok && j && j.ok) {
+              el.textContent = successMsg || "Saved.";
+              if (body.avatarUrl !== undefined) localStorage.setItem("pny_avatarUrl", body.avatarUrl);
+              if (body.coverUrl !== undefined) localStorage.setItem("pny_coverUrl", body.coverUrl);
+              if (body.postbitCoverUrl !== undefined) localStorage.setItem("pny_postbitUrl", body.postbitCoverUrl);
+              if (body.profileTitle !== undefined) localStorage.setItem("pny_profileTitle", body.profileTitle);
+              if (body.profileBio !== undefined) localStorage.setItem("pny_profileBio", body.profileBio);
+              if (body.profileColor !== undefined) localStorage.setItem("pny_profileColor", body.profileColor);
+            } else el.textContent = (j && j.error) || "Save failed.";
+          })
+          .catch(() => { el.textContent = "Network error. Is the server running?"; });
+      }
+
+      function updateAvatarPreview(url) {
+        const el = document.getElementById("avatarPreview");
+        const valid = url && (url.startsWith("http") || url.startsWith("data:"));
+        if (valid) {
+          el.style.backgroundImage = `url(${url})`;
+          el.style.backgroundSize = "cover";
+          el.style.backgroundPosition = "center";
+          el.textContent = "";
+        } else {
+          el.style.backgroundImage = "";
+          el.textContent = "?";
+        }
+      }
+
+      function updatePostbitPreview(url) {
+        const el = document.getElementById("postbitPreview");
+        const valid = url && (url.startsWith("http") || url.startsWith("data:"));
+        el.innerHTML = valid
+          ? '<div style="width:100%; height:100%; background-size:cover; background-position:center; background-image:url(' + url + ')"></div>'
+          : '<div class="muted" style="padding:12px; font-size:13px">Preview</div>';
+      }
+
+      function updateCoverPreview(url) {
+        const el = document.getElementById("coverPreview");
+        const valid = url && (url.startsWith("http") || url.startsWith("data:"));
+        if (valid) {
+          el.style.backgroundImage = `url(${url})`;
+          el.innerHTML = "";
+        } else {
+          el.style.backgroundImage = "";
+          el.innerHTML = "";
+        }
+      }
+
+      document.getElementById("avatarUrl").addEventListener("input", (e) => updateAvatarPreview(e.target.value));
+      document.getElementById("avatarFile").addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file || !file.type.startsWith("image/")) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          document.getElementById("avatarUrl").value = dataUrl;
+          updateAvatarPreview(dataUrl);
+        };
+        reader.readAsDataURL(file);
+      });
+      document.getElementById("postbitUrl").addEventListener("input", (e) => updatePostbitPreview(e.target.value));
+      document.getElementById("coverUrl").addEventListener("input", (e) => updateCoverPreview(e.target.value));
+
+      document.getElementById("avatarSave").addEventListener("click", () => {
+        const url = document.getElementById("avatarUrl").value.trim();
+        updateAvatarPreview(url);
+        saveProfilePatch({ avatarUrl: url }, "avatarStatus", "Avatar saved. Everyone can see it on your profile.");
+      });
+
+      document.getElementById("postbitSave").addEventListener("click", () => {
+        const url = document.getElementById("postbitUrl").value.trim();
+        updatePostbitPreview(url);
+        saveProfilePatch({ postbitCoverUrl: url }, "postbitStatus", "Postbit cover saved.");
+      });
+
+      document.getElementById("coverSave").addEventListener("click", () => {
+        const url = document.getElementById("coverUrl").value.trim();
+        updateCoverPreview(url);
+        saveProfilePatch({ coverUrl: url }, "coverStatus", "Cover photo saved.");
+      });
+
+      document.getElementById("customForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        saveProfilePatch(
+          {
+            profileTitle: document.getElementById("profileTitle").value,
+            profileColor: document.getElementById("profileColor").value,
+            profileBio: document.getElementById("profileBio").value,
+          },
+          "customStatus",
+          "Customizations saved."
+        );
+      });
+
+      loadSettings();
+    </script>
+  </body>
+</html>

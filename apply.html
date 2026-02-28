@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Applications</title>
+    <meta name="description" content="Project New York applications preview for a Man in the High Castle RP Garry's Mod community." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section" data-require-auth="1">
+      <div class="container">
+        <div class="card panel">
+          <h2>Applications</h2>
+          <p class="muted">Choose an application type below. Please be honest and detailed—this helps us review fairly.</p>
+          <div style="margin-top:12px">
+            <label for="applicationType">Application type</label>
+            <select id="applicationType" style="margin-left:8px; min-width:240px">
+              <option value="30">Staff Application</option>
+              <option value="31">Trusted Application</option>
+              <option value="32">Criminal Organization Application</option>
+              <option value="33">Vendor Application</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div class="card panel" id="formStaff" data-application-form="30">
+          <h2>Staff Application</h2>
+          <p class="note">You must be signed in to submit. After you submit, you’ll get a reference ID.</p>
+
+          <form data-api="/api/staff-application" style="margin-top:12px">
+            <div class="form-grid">
+              <div>
+                <label for="steam">Steam profile URL</label>
+                <input id="steam" name="steam" placeholder="https://steamcommunity.com/id/..." required />
+              </div>
+              <div>
+                <label for="discord">Discord username</label>
+                <input id="discord" name="discord" placeholder="name#0000" />
+              </div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div class="form-grid">
+              <div>
+                <label for="age">Age</label>
+                <input id="age" name="age" type="number" min="13" placeholder="18" required />
+              </div>
+              <div>
+                <label for="tz">Timezone</label>
+                <input id="tz" name="tz" placeholder="CET / GMT / EST..." required />
+              </div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div>
+              <label for="experience">Roleplay experience</label>
+              <textarea id="experience" name="experience" placeholder="Tell us about your RP background and what you enjoy in Project New York." required></textarea>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div>
+              <label for="why">Why do you want to be staff?</label>
+              <textarea id="why" name="why" placeholder="Tell us why you want to moderate, what you’re good at, and how you handle conflict fairly." required></textarea>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div>
+              <label for="availability">Availability</label>
+              <textarea id="availability" name="availability" placeholder="Days/times you’re usually active + your estimated weekly hours." required></textarea>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div>
+              <label for="history">Moderation experience (optional)</label>
+              <textarea id="history" name="history" placeholder="Any prior staff experience on other servers/communities (what role, how long, what you did)."></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn primary" type="submit"><strong>Submit</strong></button>
+            </div>
+            <p class="note" data-form-status style="margin-top:12px"> </p>
+          </form>
+        </div>
+
+        <div class="card panel" id="formOther" data-application-form="other" style="display:none">
+          <h2 id="formOtherTitle">Application</h2>
+          <p class="note">You must be signed in to submit. Your application will be posted as a topic for staff review.</p>
+
+          <form id="applicationTopicForm" style="margin-top:12px">
+            <div>
+              <label for="appTitle">Title</label>
+              <input id="appTitle" name="title" placeholder="e.g. Trusted Application — YourName" required />
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div class="form-grid">
+              <div>
+                <label for="appSteam">Steam profile URL (optional)</label>
+                <input id="appSteam" name="steam" placeholder="https://steamcommunity.com/id/..." />
+              </div>
+              <div>
+                <label for="appDiscord">Discord username (optional)</label>
+                <input id="appDiscord" name="discord" placeholder="name#0000" />
+              </div>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <div>
+              <label for="appBody">Your application</label>
+              <textarea id="appBody" name="body" rows="10" placeholder="Write your application in detail. Include any info relevant to this application type (experience, goals, etc.)." required></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn primary" type="submit" id="appSubmitBtn"><strong>Submit</strong></button>
+            </div>
+            <p class="note" id="appTopicStatus" style="margin-top:12px"> </p>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Staff, trusted, criminal org &amp; vendor applications.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./staff.html">Staff</a>
+              <a href="./server.html">Server</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      function apiUrl(path) {
+        return location.origin + (path.startsWith("/") ? path : "/" + path);
+      }
+
+      const applicationTypeSelect = document.getElementById("applicationType");
+      const formStaff = document.getElementById("formStaff");
+      const formOther = document.getElementById("formOther");
+      const formOtherTitle = document.getElementById("formOtherTitle");
+      const applicationTopicForm = document.getElementById("applicationTopicForm");
+      const appTopicStatus = document.getElementById("appTopicStatus");
+      const appSubmitBtn = document.getElementById("appSubmitBtn");
+
+      const otherTitles = {
+        "31": "Trusted Application",
+        "32": "Criminal Organization Application",
+        "33": "Vendor Application"
+      };
+
+      function switchApplicationForm() {
+        const value = applicationTypeSelect.value;
+        if (value === "30") {
+          formStaff.style.display = "";
+          formOther.style.display = "none";
+        } else {
+          formStaff.style.display = "none";
+          formOther.style.display = "";
+          formOtherTitle.textContent = otherTitles[value] || "Application";
+          document.getElementById("appTitle").placeholder = "e.g. " + (otherTitles[value] || "Application") + " — YourName";
+        }
+      }
+
+      applicationTypeSelect.addEventListener("change", switchApplicationForm);
+
+      // Support ?type=30|31|32|33 in URL (e.g. http://localhost:3000/apply.html?type=33)
+      const params = new URLSearchParams(location.search);
+      const typeParam = params.get("type");
+      if (typeParam && ["30", "31", "32", "33"].includes(typeParam)) {
+        applicationTypeSelect.value = typeParam;
+      }
+      switchApplicationForm();
+
+      if (applicationTopicForm) {
+        applicationTopicForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const category = applicationTypeSelect.value;
+          const title = (applicationTopicForm.querySelector("[name=title]") || {}).value || "";
+          const steam = (applicationTopicForm.querySelector("[name=steam]") || {}).value || "";
+          const discord = (applicationTopicForm.querySelector("[name=discord]") || {}).value || "";
+          let body = (applicationTopicForm.querySelector("[name=body]") || {}).value || "";
+          if (steam || discord) {
+            body = (steam ? "**Steam:** " + steam + "\n" : "") +
+              (discord ? "**Discord:** " + discord + "\n\n" : "") + body;
+          }
+          if (!title.trim()) { if (appTopicStatus) appTopicStatus.textContent = "Please enter a title."; return; }
+          if (!body.trim()) { if (appTopicStatus) appTopicStatus.textContent = "Please write your application."; return; }
+
+          if (appTopicStatus) appTopicStatus.textContent = "Submitting…";
+          if (appSubmitBtn) appSubmitBtn.disabled = true;
+          try {
+            const res = await fetch(apiUrl("/api/topics"), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ category, title: title.trim(), body: body.trim() }),
+              credentials: "same-origin",
+            });
+            const json = await res.json().catch(() => null);
+            if (!res.ok || !json || !json.ok) {
+              if (appTopicStatus) appTopicStatus.textContent = (json && json.error) || "Request failed (" + res.status + ")";
+              return;
+            }
+            applicationTopicForm.reset();
+            if (appTopicStatus) appTopicStatus.innerHTML = "Submitted successfully. You can view your application <a href=\"./topic.html?id=" + encodeURIComponent(json.topicId) + "\">here</a>.";
+          } catch (err) {
+            if (appTopicStatus) appTopicStatus.textContent = "Network error. Is the site server running?";
+          } finally {
+            if (appSubmitBtn) appSubmitBtn.disabled = false;
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
+

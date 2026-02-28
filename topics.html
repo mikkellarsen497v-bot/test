@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Topics</title>
+    <meta name="description" content="Topics list for Project New York." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+                <a data-nav href="./watched.html">Watched</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="card panel">
+          <h2 id="title">Topics</h2>
+          <p class="muted" id="subtitle">Loading…</p>
+          <div class="cta-row" style="margin-top:10px; flex-wrap:wrap; gap:8px">
+            <a class="btn primary" id="createLink" href="./create-topic.html"><strong>Create New Topic</strong></a>
+            <a class="btn" href="./forums.html"><strong>Forums</strong></a>
+            <button type="button" class="btn" id="markAllReadBtn" style="display:none"><strong>Mark all as read</strong></button>
+          </div>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div class="card panel" style="padding:0; overflow:hidden">
+          <table class="forum-table" aria-label="Topics">
+            <thead>
+              <tr>
+                <th style="width:50%">Topic</th>
+                <th style="width:14%">Tags</th>
+                <th style="width:18%">Author</th>
+                <th style="width:18%">Created</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Topics list.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./apply.html">Staff Application</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+      const params = new URLSearchParams(location.search);
+      const cat = params.get("cat") || "";
+      const statusFilter = (params.get("status") || "").toLowerCase();
+
+      const titleEl = document.getElementById("title");
+      const subEl = document.getElementById("subtitle");
+      const createLink = document.getElementById("createLink");
+
+      // Resolve category title from categories list
+      const markAllReadBtn = document.getElementById("markAllReadBtn");
+      fetch("/api/me", { credentials: "same-origin" })
+        .then((r) => r.json())
+        .then((j) => {
+          if (j && j.ok && j.user && markAllReadBtn) {
+            markAllReadBtn.style.display = "";
+            markAllReadBtn.addEventListener("click", () => {
+              markAllReadBtn.disabled = true;
+              fetch("/api/me/mark-all-read", { method: "POST", credentials: "same-origin" })
+                .then((res) => res.json())
+                .then((data) => {
+                  if (data && data.ok) markAllReadBtn.textContent = "Marked all as read";
+                })
+                .finally(() => { markAllReadBtn.disabled = false; });
+            });
+          }
+        })
+        .catch(() => {});
+
+      fetch("/api/categories/flat")
+        .then((r) => r.json())
+        .then((j) => {
+          if (!j || !j.ok) throw new Error("bad");
+          const all = [];
+          for (const g of j.groups) for (const f of g.forums) all.push({ ...f, groupTitle: g.title });
+          const found = all.find((f) => String(f.id) === String(cat));
+          titleEl.textContent = cat ? (found ? found.title : "Topics") : "Topics";
+          subEl.textContent = cat ? (found ? `Section: ${found.groupTitle} → ${found.title}` : `Category: ${cat}`) : "All categories";
+          createLink.href = cat ? `./create-topic.html?cat=${encodeURIComponent(cat)}` : "./create-topic.html";
+        })
+        .catch(() => {
+          titleEl.textContent = cat ? "Topics" : "Topics";
+          subEl.textContent = cat ? `Category: ${cat}` : "All categories";
+          createLink.href = cat ? `./create-topic.html?cat=${encodeURIComponent(cat)}` : "./create-topic.html";
+        });
+
+      fetch(`/api/topics${cat ? `?cat=${encodeURIComponent(cat)}` : ""}`)
+        .then((r) => r.json())
+        .then((j) => {
+          const rows = document.getElementById("rows");
+          rows.innerHTML = "";
+          if (!j || !j.ok || !Array.isArray(j.topics) || j.topics.length === 0) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td colspan="4" class="muted" style="padding:14px">No topics yet.</td>`;
+            rows.appendChild(tr);
+            return;
+          }
+
+          for (const t of j.topics) {
+            if (statusFilter) {
+              const st = (t.status || "open").toLowerCase();
+              if (st !== statusFilter) continue;
+            }
+            const tr = document.createElement("tr");
+            const when = new Date(t.createdAt).toLocaleString();
+            const author = (t.author && (t.author.displayName || t.author.username)) || "Unknown";
+            const pinned = t.pinnedAt ? `<img class="icon" alt="Pinned" src="./assets/icons/pin.svg" /> ` : "";
+            const locked = t.lockedAt ? `<img class="icon" alt="Locked" src="./assets/icons/lock.svg" /> ` : "";
+            const tagsArr = Array.isArray(t.tags) ? t.tags : [];
+            const tagsHtml = tagsArr.length ? tagsArr.map((tag) => `<span class="chip neutral">${escapeHtml(String(tag))}</span>`).join(" ") : "<span class=\"muted\">—</span>";
+            tr.innerHTML =
+              `<td><a href="./topic.html?id=${t.id}" style="text-decoration:none"><strong>${pinned}${locked}${escapeHtml(t.title)}</strong></a>` +
+              `<div class="muted">Forum: ${escapeHtml(t.categoryTitle || "")}</div></td>` +
+              `<td style="font-size:12px">${tagsHtml}</td>` +
+              `<td class="muted">${escapeHtml(author)}</td>` +
+              `<td class="muted">${escapeHtml(when)}</td>`;
+            rows.appendChild(tr);
+          }
+        })
+        .catch(() => {
+          document.getElementById("subtitle").textContent = "Failed to load topics.";
+        });
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      }
+    </script>
+  </body>
+</html>
+

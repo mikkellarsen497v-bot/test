@@ -1,0 +1,29 @@
+# Fly.io app config — deploy with: fly launch (first time) then fly deploy
+# See DEPLOY.md for full steps.
+
+app = "project-new-york"
+
+[build]
+
+[env]
+  PORT = "3000"
+  NODE_ENV = "production"
+  DATA_DIR = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+# Persistent volume for forum data (created on first fly volumes create)
+[mounts]
+  source = "pny_data"
+  destination = "/data"

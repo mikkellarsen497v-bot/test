@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Profile</title>
+    <meta name="description" content="User profile on Project New York." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="card panel" style="padding:0; overflow:hidden">
+          <div id="profileCover" style="height:110px; background: repeating-linear-gradient(90deg, rgba(139,0,0,.65) 0 90px, rgba(231,231,231,.08) 90px 180px), rgba(16,20,23,.7); border-bottom:1px solid rgba(37,44,51,.9); background-size:cover; background-position:center"></div>
+          <div style="padding:14px 16px; display:flex; align-items:center; gap:14px; flex-wrap:wrap">
+            <div class="avatar" id="avatar" style="width:64px; height:64px; border-radius:16px; font-size:18px; background-size:cover; background-position:center">?</div>
+            <div style="flex:1; min-width:220px">
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+                <h2 id="name" style="margin:0">Loading…</h2>
+                <span class="chip neutral" id="rankChip" style="display:none"></span>
+              </div>
+              <p class="muted" id="meta" style="margin:6px 0 0"> </p>
+            </div>
+            <div class="cta-row">
+              <a class="btn" id="allPostsLink" href="./topics.html"><strong>View posts</strong></a>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div class="layout">
+          <aside class="sidebar">
+            <div class="card panel">
+              <h2>About</h2>
+              <p class="muted" id="about"> </p>
+              <div style="height:10px"></div>
+              <div class="side-item">
+                <div class="title"><strong>Stats</strong><span class="badge">Public</span></div>
+                <div class="meta" id="stats">—</div>
+              </div>
+            </div>
+          </aside>
+
+          <div>
+            <div class="card panel">
+              <h2>All posts by user</h2>
+              <p class="muted">Latest topics and replies posted by this account.</p>
+            </div>
+
+            <div style="height:14px"></div>
+
+            <div class="card panel" id="activity">
+              <p class="muted">Loading…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">User profile.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./apply.html">Staff Application</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+      const params = new URLSearchParams(location.search);
+      let id = params.get("id");
+      const usernameParam = params.get("username");
+      const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+      const avatarText = (name) => {
+        const parts = String(name || "").trim().split(/\s+/).slice(0, 2);
+        return parts.map((p) => p[0]).join("").toUpperCase().slice(0, 2) || "?";
+      };
+
+      function applyProfileAssets(avatarUrl, coverUrl) {
+        const avatarEl = document.getElementById("avatar");
+        const coverEl = document.getElementById("profileCover");
+        if (avatarUrl && (avatarUrl.startsWith("http") || avatarUrl.startsWith("data:"))) {
+          avatarEl.style.backgroundImage = `url(${avatarUrl})`;
+          avatarEl.textContent = "";
+        }
+        if (coverUrl && (coverUrl.startsWith("http") || coverUrl.startsWith("data:"))) {
+          coverEl.style.backgroundImage = `url(${coverUrl})`;
+        }
+      }
+
+      function loadProfile(userId) {
+        if (!userId) {
+          document.getElementById("name").textContent = "Missing user id.";
+          return;
+        }
+        id = userId;
+        fetch(`/api/users/${encodeURIComponent(id)}?_=${Date.now()}`, { cache: "no-store" })
+          .then((r) => r.json())
+          .then((j) => {
+            if (!j || !j.ok) throw new Error("bad");
+            const u = j.user;
+
+            document.title = `Project New York — ${u.displayName || u.username}`;
+            document.getElementById("name").textContent = u.displayName || u.username;
+            document.getElementById("avatar").textContent = avatarText(u.displayName || u.username);
+            const warnStr = (u.warningsCount != null && u.warningsCount > 0) ? ` • Warnings: ${u.warningsCount}` : "";
+            document.getElementById("meta").textContent = `@${u.username} • Joined ${new Date(u.createdAt).toLocaleDateString()}${warnStr}`;
+            const rankRole = `Rank: ${(u.rank && u.rank.name) || "Member"} • Role: ${u.role}`;
+            document.getElementById("about").textContent = [u.profileTitle, u.profileBio, rankRole].filter(Boolean).join("\n\n");
+
+            if (u.rank && u.rank.name) {
+              const chip = document.getElementById("rankChip");
+              chip.style.display = "";
+              chip.textContent = u.rank.name;
+            }
+
+            applyProfileAssets(u.avatarUrl || "", u.coverUrl || "");
+          })
+          .catch(() => {
+            document.getElementById("name").textContent = "User not found.";
+          });
+
+        Promise.all([fetch(`/api/users/${encodeURIComponent(id)}/topics`).then((r) => r.json())])
+          .then(([t]) => {
+            const activity = document.getElementById("activity");
+            if (!t || !t.ok) throw new Error("bad");
+            const topics = t.topics || [];
+            document.getElementById("stats").textContent = `${topics.length} topics`;
+            if (!topics.length) {
+              activity.innerHTML = `<p class="muted">No posts yet.</p>`;
+              return;
+            }
+            activity.innerHTML = topics
+              .slice(0, 50)
+              .map((x) => {
+                const when = new Date(x.createdAt).toLocaleString();
+                const badges = `${x.pinnedAt ? "📌 " : ""}${x.lockedAt ? "🔒 " : ""}`;
+                return `
+                  <div class="side-item" style="margin-bottom:10px">
+                    <div class="title"><strong>${badges}${esc(x.title)}</strong><span class="meta">${esc(when)}</span></div>
+                    <div class="meta">in <a href="./topics.html?cat=${encodeURIComponent(x.categoryId)}">${esc(x.categoryTitle || "")}</a></div>
+                    <div class="meta"><a href="./topic.html?id=${encodeURIComponent(x.id)}">Open</a></div>
+                  </div>
+                `;
+              })
+              .join("");
+          })
+          .catch(() => {
+            document.getElementById("activity").innerHTML = `<p class="muted">Failed to load activity.</p>`;
+          });
+
+        document.getElementById("allPostsLink").href = `./profile.html?id=${encodeURIComponent(id)}`;
+      }
+
+      if (usernameParam && !id) {
+        fetch(`/api/users/by-username/${encodeURIComponent(usernameParam)}`, { cache: "no-store" })
+          .then((r) => r.json())
+          .then((j) => {
+            if (j && j.ok && j.id) {
+              if (window.history && window.history.replaceState) {
+                const u = new URL(location.href);
+                u.searchParams.delete("username");
+                u.searchParams.set("id", j.id);
+                window.history.replaceState({}, "", u.toString());
+              }
+              loadProfile(j.id);
+            } else {
+              document.getElementById("name").textContent = "User not found.";
+            }
+          })
+          .catch(() => { document.getElementById("name").textContent = "User not found."; });
+      } else {
+        loadProfile(id);
+      }
+    </script>
+  </body>
+</html>
+

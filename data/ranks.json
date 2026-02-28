@@ -1,0 +1,100 @@
+{
+  "nextId": 12,
+  "ranks": [
+    {
+      "id": 1,
+      "name": "Member",
+      "badgeUrl": "",
+      "default": true,
+      "level": 1,
+      "permissions": {
+        "forums": {
+          "*": {
+            "read": true,
+            "post": true,
+            "moderate": false
+          }
+        },
+        "site": {
+          "accessAdmin": false
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "Staff",
+      "badgeUrl": "",
+      "default": false,
+      "level": 2,
+      "permissions": {
+        "forums": {
+          "*": {
+            "read": true,
+            "post": true,
+            "moderate": true
+          }
+        },
+        "site": {
+          "accessAdmin": false
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "Root",
+      "badgeUrl": "",
+      "default": false,
+      "level": 3,
+      "permissions": {
+        "forums": {
+          "*": {
+            "read": true,
+            "post": true,
+            "moderate": true
+          }
+        },
+        "site": {
+          "accessAdmin": true
+        }
+      }
+    },
+    {
+      "id": 10,
+      "name": "UA",
+      "badgeUrl": "",
+      "default": false,
+      "level": 3,
+      "permissions": {
+        "forums": {
+          "*": {
+            "read": true,
+            "post": true,
+            "moderate": true
+          }
+        },
+        "site": {
+          "accessAdmin": true
+        }
+      }
+    },
+    {
+      "id": 11,
+      "name": "Dev",
+      "badgeUrl": "",
+      "default": false,
+      "level": 3,
+      "permissions": {
+        "forums": {
+          "*": {
+            "read": true,
+            "post": true,
+            "moderate": true
+          }
+        },
+        "site": {
+          "accessAdmin": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project New York — Server</title>
+    <meta name="description" content="Project New York server info and status preview for a Man in the High Castle RP Garry's Mod server." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="topbar-inner">
+          <a class="brand" href="./index.html" aria-label="Go to home">
+            <div class="brand-badge">PNY</div>
+            <div class="brand-title">
+              <strong>Project New York</strong>
+              <span>Man in the High Castle RP hub</span>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <details class="menu">
+              <summary>Browse</summary>
+              <div class="menu-panel" role="menu" aria-label="Browse">
+                <a data-nav href="./forums.html">Forums</a>
+              </div>
+            </details>
+            <a data-nav href="./bans.html">Bans</a>
+            <a data-nav href="./staff.html">Staff</a>
+            <a class="pill" href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+            <a data-nav class="pill" href="./wiki.html">Wiki</a>
+            <a class="pill" href="./signin.html">Sign In</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="card panel">
+          <h2>Server</h2>
+          <p class="muted">
+            Replace the placeholder IP, map, and content instructions with your real details. This layout is designed to look like a clean “hub” page.
+          </p>
+          <div class="cta-row" style="margin-top:10px">
+            <a class="btn primary" href="steam://connect/193.243.190.19:27015"><strong>Join Server</strong><span class="mini">steam://connect</span></a>
+            <a class="btn" href="https://steamcommunity.com/" target="_blank" rel="noreferrer"><strong>Workshop Collection</strong></a>
+          </div>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div class="two-col">
+          <div class="card panel">
+            <h2>Live Status</h2>
+            <div class="kv" style="margin-top:10px">
+              <div class="row"><span>Server</span><strong>Project New York</strong></div>
+              <div class="row"><span>IP</span><strong>193.243.190.19:27015</strong></div>
+              <div class="row"><span>Players</span><strong data-server-players>42 / 128</strong></div>
+              <div class="row"><span>Map</span><strong data-server-map>—</strong></div>
+              <div class="row"><span>Territories active</span><strong>Reich Territory • Pacific States</strong></div>
+              <div class="row"><span>Uptime</span><strong data-server-uptime>—</strong></div>
+            </div>
+            <p class="note" style="margin-top:12px">
+              Player count and status are queried live from the game server; updates every 60s.
+              Show the same count in Discord with <a href="https://physgun.com/playercountbot/" target="_blank" rel="noreferrer">PlayerCountBot</a> (free).
+            </p>
+          </div>
+
+          <div class="card panel">
+            <h2>How to Join</h2>
+            <ol class="list">
+              <li>Join Discord and verify.</li>
+              <li>Read the rules and powerplay standards.</li>
+              <li>Install required content from the Workshop collection.</li>
+              <li>Connect using the Join Server button above.</li>
+            </ol>
+            <p class="note" style="margin-top:12px">Optional: add troubleshooting (missing textures, download issues, performance tips).</p>
+          </div>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div class="card panel">
+          <h2>Server Information</h2>
+          <div class="two-col" style="margin-top:10px">
+            <div>
+              <p class="muted"><strong>Schedule</strong></p>
+              <ul class="list">
+                <li>Major operations: Saturdays 19:00</li>
+                <li>Training: weekdays 18:00–20:00</li>
+                <li>Campaign resets: monthly</li>
+              </ul>
+            </div>
+            <div>
+              <p class="muted"><strong>What we focus on</strong></p>
+              <ul class="list">
+                <li>Disciplined, immersive RP</li>
+                <li>Grounded conflict and investigation RP</li>
+                <li>Fair enforcement with appeals</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-title">Project New York</p>
+            <p class="muted">Server page preview: join instructions, status, and schedule.</p>
+            <p class="fine">Server IP: <span style="font-family:var(--mono)">193.243.190.19:27015</span></p>
+          </div>
+          <div>
+            <p class="footer-title">Quick Links</p>
+            <div class="footer-links">
+              <a href="./forums.html">Forums</a>
+              <a href="./apply.html">Applications</a>
+              <a href="./appeal.html">Appeals</a>
+            </div>
+          </div>
+          <div>
+            <p class="footer-title">External</p>
+            <div class="footer-links">
+              <a href="https://discord.gg/qBejzcjt" target="_blank" rel="noreferrer">Discord</a>
+              <a href="https://store.steampowered.com/" target="_blank" rel="noreferrer">Steam</a>
+            </div>
+          </div>
+        </div>
+        <p class="fine">© <span id="year"></span> Project New York.</p>
+      </div>
+    </footer>
+
+    <script src="./api-config.js"></script>
+    <script src="./shared.js"></script>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
+
