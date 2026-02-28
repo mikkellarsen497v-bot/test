@@ -121,7 +121,10 @@
           steam_failed: "Steam sign-in failed. Try again.",
           account_disabled: "This account is disabled.",
         };
-        statusEl.textContent = messages[error] || "Sign-in failed. Try again.";
+        let text = messages[error] || "Sign-in failed. Try again.";
+        const msg = params.get("msg");
+        if (msg) text += " (" + msg + ")";
+        statusEl.textContent = text;
       }
 
       const steamBtn = document.getElementById("steamLoginBtn");

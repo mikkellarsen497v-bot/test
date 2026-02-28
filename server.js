@@ -1341,18 +1341,16 @@ app.get("/api/auth/steam/authenticate", rateLimit("login", 10), async (req, res)
   const isSecure = req.secure || (req.headers["x-forwarded-proto"] === "https") || process.env.NODE_ENV === "production";
   const clearNextCookie = () => { res.append("Set-Cookie", "pny_steam_next=; Path=/; Max-Age=0; HttpOnly"); };
   try {
-    // Use request's full URL as return URL so OpenID verification passes behind proxies (Steam adds query params to callback)
-    const fullReturnUrl = `${req.protocol}://${req.get("host") || "localhost"}${req.originalUrl || req.url}`;
-    const openid = require("openid");
-    const rp = new openid.RelyingParty(fullReturnUrl, steamBaseUrl, true, true, []);
-    const steamUser = await new Promise((resolve, reject) => {
-      rp.verifyAssertion(req, (err, result) => {
-        if (err) return reject(new Error(err.message || String(err)));
-        if (!result || !result.authenticated) return reject(new Error("Failed to authenticate user."));
-        if (!/^https?:\/\/steamcommunity\.com\/openid\/id\/\d+$/.test(result.claimedIdentifier)) return reject(new Error("Claimed identity is not valid."));
-        steamAuth.fetchIdentifier(result.claimedIdentifier).then(resolve).catch(reject);
-      });
-    });
+    // OpenID library compares req.url to return_to; behind a proxy req.url is path-only. Use full URL so verification passes.
+    const fullCallbackUrl = `${req.protocol}://${req.get("host") || "localhost"}${req.originalUrl || req.url}`;
+    const origUrl = req.url;
+    req.url = fullCallbackUrl;
+    let steamUser;
+    try {
+      steamUser = await steamAuth.authenticate(req);
+    } finally {
+      req.url = origUrl;
+    }
     const steamId = String(steamUser.steamid || "").trim();
     const displayName = clampStr(steamUser.name || steamUser.username || "Steam User", 40);
     if (!steamId) {
@@ -1398,7 +1396,8 @@ app.get("/api/auth/steam/authenticate", rateLimit("login", 10), async (req, res)
     const errMsg = err && (err.message || String(err));
     console.error("Steam authenticate error:", errMsg, err);
     clearNextCookie();
-    res.redirect(302, steamRedirect("/signin.html?error=steam_failed"));
+    const msgParam = errMsg ? "&msg=" + encodeURIComponent(String(errMsg).slice(0, 120)) : "";
+    res.redirect(302, steamRedirect("/signin.html?error=steam_failed" + msgParam));
   }
 });
 
