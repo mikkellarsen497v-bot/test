@@ -8,12 +8,12 @@ const crypto = require("crypto");
 const https = require("https");
 const { GameDig } = require("gamedig");
 
-// Steam OpenID login (set STEAM_API_KEY and BASE_URL in .env)
+// Steam OpenID login (set STEAM_API_KEY and BASE_URL in .env; BASE_URL auto-detected on Render via RENDER_EXTERNAL_URL)
 let steamAuth = null;
 if (process.env.STEAM_API_KEY) {
   try {
     const SteamAuth = require("node-steam-openid");
-    const baseUrl = (process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/$/, "");
+    const baseUrl = (process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/$/, "");
     steamAuth = new SteamAuth({
       realm: baseUrl,
       returnUrl: `${baseUrl}/api/auth/steam/authenticate`,
@@ -51,6 +51,8 @@ if (process.env.SAM_MYSQL_HOST && process.env.SAM_MYSQL_DATABASE) {
 }
 
 const app = express();
+// Trust first proxy (Render, Nginx, etc.) so req.secure and req.get('host') are correct for cookies
+app.set("trust proxy", 1);
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 // Allow override for persistent volume mounts (Railway, Fly.io, Docker)
@@ -1318,7 +1320,7 @@ app.patch("/api/me/profile", requireAuth, rateLimit("profile", 30), (req, res) =
 });
 
 // --- Steam login ---
-const frontendUrl = (process.env.FRONTEND_URL || "").replace(/\/$/, "");
+const frontendUrl = (process.env.FRONTEND_URL || process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || "").replace(/\/$/, "");
 const steamRedirect = (path) => (frontendUrl ? frontendUrl + (path.startsWith("/") ? path : "/" + path) : path.startsWith("/") ? path : "/" + path);
 
 app.get("/api/auth/steam", rateLimit("login", 10), (req, res) => {
@@ -1378,9 +1380,11 @@ app.get("/api/auth/steam/authenticate", rateLimit("login", 10), async (req, res)
     setCookie(res, "pny_session", sid, sessionCookieOpts(req));
     clearNextCookie();
     const targetPath = nextPath.startsWith("/") ? nextPath.slice(1) : nextPath;
+    console.log("Steam login success:", user.username, "->", targetPath);
     res.redirect(302, steamRedirect("/" + targetPath));
   } catch (err) {
-    console.error("Steam authenticate error:", err);
+    const errMsg = err && (err.message || String(err));
+    console.error("Steam authenticate error:", errMsg, err);
     clearNextCookie();
     res.redirect(302, steamRedirect("/signin.html?error=steam_failed"));
   }
